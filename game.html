@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gacha Clicker - Jeu</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen p-6">
 
@@ -23,16 +24,23 @@
     </button>
   </div>
 
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-    const supabase = createClient('https://zbyvhlhnjefpodjdnfdy.supabase.co', 'eyJhbGciOi...')
+  <script>
+    const supabase = supabase.createClient(
+      'https://zbyvhlhnjefpodjdnfdy.supabase.co',
+      'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
+    )
 
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data, error } = await supabase.auth.getUser()
+      const user = data?.user
       if (!user) return window.location.href = 'index.html'
 
-      const { data: profile } = await supabase.from('profiles').select('pseudo').eq('user_id', user.id).single()
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('pseudo')
+        .eq('user_id', user.id)
+        .single()
+
       document.getElementById('welcome').textContent = `Salut ${profile?.pseudo || 'Joueur'} !`
 
       // Exemple clic simple (à améliorer après)
