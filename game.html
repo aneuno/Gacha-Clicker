@@ -56,6 +56,7 @@ const supabaseClient = supabase.createClient(
 
 let clicks = 0
 let userId = null
+let pseudo = null
 
 async function load(){
 
@@ -70,18 +71,46 @@ async function load(){
   userId = user.id
 
   // récupérer progression joueur
-  const { data: progress } = await supabaseClient
+  let { data: progress } = await supabaseClient
     .from("player_progress")
-    .select("click_count")
+    .select("click_count,pseudo")
     .eq("user_id", userId)
     .single()
 
-  clicks = progress?.click_count || 0
-  document.getElementById("score").textContent = clicks
-  document.getElementById("welcome").textContent = "Salut Joueur !"
+  // si le joueur n'existe pas encore, créer l'entrée
+  if(!progress){
+    progress = {
+      click_count: 0,
+      pseudo: ""
+    }
+    await supabaseClient
+      .from("player_progress")
+      .insert({
+        user_id: userId,
+        click_count: 0,
+        pseudo: ""
+      })
+  }
 
-  // charger infos profil
-  loadProfile(user)
+  clicks = progress.click_count || 0
+  document.getElementById("score").textContent = clicks
+
+  // si le pseudo n'est pas encore défini, demander au joueur
+  if(!progress.pseudo){
+    pseudo = prompt("Bienvenue ! Choisis ton pseudo :","Joueur")
+    if(!pseudo) pseudo = "Joueur"
+    await supabaseClient
+      .from("player_progress")
+      .update({ pseudo: pseudo })
+      .eq("user_id", userId)
+  } else {
+    pseudo = progress.pseudo
+  }
+
+  document.getElementById("welcome").textContent = `Salut ${pseudo} !`
+
+  // afficher dans le menu profil
+  loadProfile()
 }
 
 // Afficher le menu quand on clique sur le bouton Profil
@@ -91,10 +120,9 @@ document.getElementById("profileBtn").onclick = function() {
 }
 
 // Charger les infos du profil
-function loadProfile(user){
-  // afficher le pseudo
-  document.getElementById("profileName").textContent = user.user_metadata?.username || "Joueur";
-  document.getElementById("profileScore").textContent = clicks;
+function loadProfile(){
+  document.getElementById("profileName").textContent = pseudo
+  document.getElementById("profileScore").textContent = clicks
 }
 
 // Déconnexion depuis le menu
