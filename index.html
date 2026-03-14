@@ -12,7 +12,6 @@
 
     <h1 class="text-3xl font-bold text-center mb-6">Gacha Clicker</h1>
 
-    <!-- Formulaire connexion -->
     <form id="login-form" class="space-y-4">
       <input id="email" type="email" placeholder="Email" required class="w-full p-3 bg-gray-700 rounded">
       <input id="password" type="password" placeholder="Mot de passe" required class="w-full p-3 bg-gray-700 rounded">
@@ -21,7 +20,6 @@
 
     <div class="text-center my-4">ou</div>
 
-    <!-- Formulaire inscription -->
     <form id="signup-form" class="space-y-4 hidden">
       <input id="pseudo" type="text" placeholder="Pseudo" required class="w-full p-3 bg-gray-700 rounded">
       <input id="signup-email" type="email" placeholder="Email" required class="w-full p-3 bg-gray-700 rounded">
@@ -38,8 +36,8 @@
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
     const supabase = createClient(
-      'https://zbyvhlhnjefpodjdnfdy.supabase.co',  // ← TON URL Supabase
-      'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'  // ← TA CLÉ ANON
+      'https://zbyvhlhnjefpodjdnfdy.supabase.co',  
+      'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'  
     )
 
     const loginForm = document.getElementById('login-form')
@@ -78,10 +76,9 @@
 
       if (error) return message.textContent = error.message
       message.textContent = "Compte créé ! Tu peux te connecter."
-      toggleBtn.click()  // repasse sur connexion
+      toggleBtn.click() 
     }
 
-    // Si déjà connecté → direct au jeu
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) window.location.href = 'game.html'
     })
