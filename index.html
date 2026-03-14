@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Clicker Gacha</title>
+  <title>Compte Gacha</title>
 </head>
 <body>
 
@@ -20,35 +20,31 @@
   <button type="submit">Connexion</button>
 </form>
 
-<h2>Clicker</h2>
-<button id="clicker" style="display:none;">Clique !</button>
-<p>Score : <span id="score">0</span></p>
+<div id="menu" style="display:none;">
+  <h2>fonctionable</h2>
+</div>
 
-<!-- Librairie Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
-  // Initialiser Supabase
+  // 🔹 Initialisation Supabase
   const supabaseUrl = 'https://zbyvhlhnjefpodjdnfdy.supabase.co';
   const supabaseKey = 'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l';
   const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  let PSEUDO_JOUEUR = null;
-  let score = 0;
+  // 🔹 Regex mot de passe
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*[!@#$%^&*]).{6,}$/;
 
-  const clickerBtn = document.getElementById('clicker');
-  const scoreDisplay = document.getElementById('score');
-
-  function afficherClicker(currentScore) {
-    score = currentScore;
-    scoreDisplay.textContent = score;
-    clickerBtn.style.display = 'inline';
-  }
-
-  // Création de compte
+  // 🔹 Création de compte
   document.getElementById('formCreate').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const pseudo = document.getElementById('pseudo').value;
+    const pseudo = document.getElementById('pseudo').value.trim();
     const password = document.getElementById('password').value;
+
+    // Vérifie mot de passe
+    if(!passwordRegex.test(password)) {
+      alert('Mot de passe invalide : min 6 caractères, 1 lettre et 1 caractère spécial');
+      return;
+    }
 
     // Vérifie si pseudo existe déjà
     const { data: existing, error: err1 } = await supabase
@@ -57,27 +53,24 @@
       .eq('pseudo', pseudo)
       .single();
 
-    if (existing) {
+    if(existing) {
       alert('Pseudo déjà utilisé !');
       return;
     }
 
-    // Insert nouveau joueur
+    // Crée le compte
     const { data, error } = await supabase
       .from('users')
       .insert([{ pseudo: pseudo, password: password, score: 0 }]);
 
-    if (error) {
-      alert('Erreur : ' + error.message);
-    } else {
-      alert('Compte créé !');
-    }
+    if(error) alert('Erreur : ' + error.message);
+    else alert('Compte créé avec succès !');
   });
 
-  // Connexion
+  // 🔹 Connexion
   document.getElementById('formLogin').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const pseudo = document.getElementById('loginPseudo').value;
+    const pseudo = document.getElementById('loginPseudo').value.trim();
     const password = document.getElementById('loginPassword').value;
 
     const { data, error } = await supabase
@@ -86,33 +79,22 @@
       .eq('pseudo', pseudo)
       .single();
 
-    if (error || !data) {
+    if(error || !data) {
       alert('Utilisateur non trouvé');
       return;
     }
 
-    if (data.password !== password) {
+    if(data.password !== password) {
       alert('Mot de passe incorrect');
       return;
     }
 
-    PSEUDO_JOUEUR = pseudo;
-    afficherClicker(data.score);
+    // Affiche le menu simple
+    document.getElementById('formCreate').style.display = 'none';
+    document.getElementById('formLogin').style.display = 'none';
+    document.getElementById('menu').style.display = 'block';
   });
 
-  // Clicker
-  clickerBtn.addEventListener('click', async () => {
-    if (!PSEUDO_JOUEUR) return;
-    score += 1;
-    scoreDisplay.textContent = score;
-
-    const { error } = await supabase
-      .from('users')
-      .update({ score: score })
-      .eq('pseudo', PSEUDO_JOUEUR);
-
-    if (error) console.log('Erreur score:', error.message);
-  });
 </script>
 
 </body>
