@@ -1,61 +1,78 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gacha Clicker - Jeu</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gacha Clicker - Jeu</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body class="bg-gray-900 text-white min-h-screen p-6">
 
-  <h1 class="text-4xl font-bold text-center mb-8">Gacha Clicker</h1>
+<h1 class="text-4xl font-bold text-center mb-8">Gacha Clicker</h1>
 
-  <div class="max-w-md mx-auto bg-gray-800 p-8 rounded-xl">
-    <p id="welcome" class="text-xl mb-6 text-center">Chargement...</p>
+<div class="max-w-md mx-auto bg-gray-800 p-8 rounded-xl">
 
-    <div class="text-2xl mb-4">Score : <span id="score">0</span></div>
-    <button id="click" class="w-full py-6 bg-purple-700 rounded-xl text-3xl font-bold mb-6 hover:bg-purple-600">
-      Clique.
-    </button>
+<p id="welcome" class="text-xl mb-6 text-center">Chargement...</p>
 
-    <button id="logout" class="w-full py-3 bg-red-600 rounded hover:bg-red-700">
-      Déconnexion
-    </button>
-  </div>
+<div class="text-2xl mb-4">
+Score : <span id="score">0</span>
+</div>
 
-  <script>
-    const supabase = supabase.createClient(
-      'https://zbyvhlhnjefpodjdnfdy.supabase.co',
-      'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
-    )
+<button id="click" class="w-full py-6 bg-purple-700 rounded-xl text-3xl font-bold mb-6 hover:bg-purple-600">
+Clique.
+</button>
 
-    async function load() {
-      const { data, error } = await supabase.auth.getUser()
-      const user = data?.user
-      if (!user) return window.location.href = 'index.html'
+<button id="logout" class="w-full py-3 bg-red-600 rounded hover:bg-red-700">
+Déconnexion
+</button>
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('pseudo')
-        .eq('user_id', user.id)
-        .single()
+</div>
 
-      document.getElementById('welcome').textContent = `Salut ${profile?.pseudo || 'Joueur'} !`
+<script>
 
-      // Exemple clic simple (à améliorer après)
-      let clicks = 0
-      document.getElementById('click').onclick = () => {
-        clicks++
-        document.getElementById('score').textContent = clicks
-      }
-    }
+const supabaseClient = supabase.createClient(
+'https://zbyvhlhnjefpodjdnfdy.supabase.co',
+'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
+)
 
-    document.getElementById('logout').onclick = () => {
-      supabase.auth.signOut().then(() => location.href = 'index.html')
-    }
+let clicks = 0
 
-    load()
-  </script>
+async function load(){
+
+const { data } = await supabaseClient.auth.getUser()
+const user = data?.user
+
+if(!user){
+window.location.href = "index.html"
+return
+}
+
+const { data: profile } = await supabaseClient
+.from("profiles")
+.select("pseudo")
+.eq("user_id", user.id)
+.single()
+
+document.getElementById("welcome").textContent =
+`Salut ${profile?.pseudo || "Joueur"} !`
+
+}
+
+document.getElementById("click").onclick = function(){
+clicks++
+document.getElementById("score").textContent = clicks
+}
+
+document.getElementById("logout").onclick = function(){
+supabaseClient.auth.signOut()
+.then(()=> location.href="index.html")
+}
+
+load()
+
+</script>
+
 </body>
 </html>
