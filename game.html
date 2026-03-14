@@ -14,7 +14,6 @@
 
 <h1 class="text-4xl font-bold text-center mb-8">Gacha Clicker</h1>
 
-<!-- Menu Profil en haut à droite -->
 <div class="absolute top-6 right-6">
   <button id="profileBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
     Profil
@@ -56,7 +55,7 @@ const supabaseClient = supabase.createClient(
 let clicks = 0
 let lastSavedClicks = 0
 let userId = null
-let saveTimeout = null  // pour le timer de sauvegarde
+let saveTimeout = null 
 
 async function load(){
 
@@ -70,14 +69,12 @@ async function load(){
 
   userId = user.id
 
-  // récupérer progression joueur
   let { data: progress } = await supabaseClient
     .from("player_progress")
     .select("click_count,total_score,gacha_points,pity_counter,last_click")
     .eq("user_id", userId)
     .single()
 
-  // créer entrée si elle n'existe pas
   if(!progress){
     await supabaseClient
       .from("player_progress")
@@ -102,27 +99,23 @@ async function load(){
   document.getElementById("welcome").textContent = "Salut Joueur !"
 }
 
-// Afficher le menu quand on clique sur le bouton Profil
 document.getElementById("profileBtn").onclick = function() {
   const menu = document.getElementById("profileMenu");
   menu.classList.toggle("hidden");
 }
 
-// Déconnexion depuis le menu
 document.getElementById("logoutMenu").onclick = function() {
   supabaseClient.auth.signOut().then(()=>{
     location.href = "index.html";
   })
 }
 
-// Déconnexion bouton principal
 document.getElementById("logout").onclick = function(){
   supabaseClient.auth.signOut().then(()=>{
     location.href = "index.html"
   })
 }
 
-// Fonction pour sauvegarder le score
 async function saveScore(){
   const newClicks = clicks - lastSavedClicks
   if(newClicks > 0){
@@ -140,16 +133,14 @@ async function saveScore(){
   }
 }
 
-// Gestion du click
 document.getElementById("click").onclick = function(){
 
   clicks++
   document.getElementById("score").textContent = clicks
   document.getElementById("profileScore").textContent = clicks
 
-  // réinitialiser le timer de sauvegarde
   if(saveTimeout) clearTimeout(saveTimeout)
-  saveTimeout = setTimeout(saveScore, 2000)  // sauvegarde si pas de clic pendant 2s
+  saveTimeout = setTimeout(saveScore, 2000) 
 }
 
 load()
