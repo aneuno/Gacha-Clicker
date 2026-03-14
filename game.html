@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gacha Clicker - Jeu</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 
 <body class="bg-gray-900 text-white min-h-screen p-6">
@@ -38,6 +40,7 @@ const supabaseClient = supabase.createClient(
 )
 
 let clicks = 0
+let userId = null
 
 async function load(){
 
@@ -49,20 +52,32 @@ window.location.href = "index.html"
 return
 }
 
+userId = user.id
+
 const { data: profile } = await supabaseClient
 .from("profiles")
-.select("pseudo")
+.select("pseudo, score")
 .eq("user_id", user.id)
 .single()
 
 document.getElementById("welcome").textContent =
 `Salut ${profile?.pseudo || "Joueur"} !`
 
+clicks = profile?.score || 0
+document.getElementById("score").textContent = clicks
+
 }
 
-document.getElementById("click").onclick = function(){
+document.getElementById("click").onclick = async function(){
+
 clicks++
 document.getElementById("score").textContent = clicks
+
+await supabaseClient
+.from("profiles")
+.update({ score: clicks })
+.eq("user_id", userId)
+
 }
 
 document.getElementById("logout").onclick = function(){
