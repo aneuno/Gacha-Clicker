@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Clicker Gacha</title>
+</head>
+<body>
+
+<h2>Créer un compte</h2>
+<form id="formCreate">
+  <input type="text" id="pseudo" placeholder="Pseudo" required>
+  <input type="password" id="password" placeholder="Mot de passe" required>
+  <button type="submit">Créer le compte</button>
+</form>
+
+<h2>Connexion</h2>
+<form id="formLogin">
+  <input type="text" id="loginPseudo" placeholder="Pseudo" required>
+  <input type="password" id="loginPassword" placeholder="Mot de passe" required>
+  <button type="submit">Connexion</button>
+</form>
+
+<h2>Clicker</h2>
+<button id="clicker" style="display:none;">Clique !</button>
+<p>Score : <span id="score">0</span></p>
+
+<!-- Librairie Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+  // 🔹 Initialiser Supabase
+  const supabaseUrl = 'https://zbyvhlhnjefpodjdnfdy.supabase.co';
+  const supabaseKey = 'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l';
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+  let PSEUDO_JOUEUR; // pseudo du joueur connecté
+  let score = 0;
+
+  const clickerBtn = document.getElementById('clicker');
+  const scoreDisplay = document.getElementById('score');
+
+  function afficherClicker(currentScore) {
+    score = currentScore;
+    scoreDisplay.textContent = score;
+    clickerBtn.style.display = 'inline';
+  }
+
+  // 🔹 Création de compte
+  document.getElementById('formCreate').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pseudo = document.getElementById('pseudo').value;
+    const password = document.getElementById('password').value;
+
+    // Vérifie si le pseudo existe déjà
+    const { data: existing, error: err1 } = await supabase
+      .from('users')
+      .select('*')
+      .eq('pseudo', pseudo)
+      .single();
+
+    if(existing) {
+      alert('Pseudo déjà utilisé !');
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .insert([{ pseudo: pseudo, password: password, score: 0 }]);
+
+    if(error) alert('Erreur : ' + error.message);
+    else alert('Compte créé !');
+  });
+
+  // 🔹 Connexion
+  document.getElementById('formLogin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pseudo = document.getElementById('loginPseudo').value;
+    const password = document.getElementById('loginPassword').value;
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('pseudo', pseudo)
+      .single();
+
+    if(error || !data) {
+      alert('Utilisateur non trouvé');
+      return;
+    }
+
+    if(data.password !== password) {
+      alert('Mot de passe incorrect');
+      return;
+    }
+
+    PSEUDO_JOUEUR = pseudo;
+    alert('Connecté ! Score actuel : ' + data.score);
+    afficherClicker(data.score);
+  });
+
+  // 🔹 Clicker
+  clickerBtn.addEventListener('click', async () => {
+    score += 1;
+    scoreDisplay.textContent = score;
+
+    const { error } = await supabase
+      .from('users')
+      .update({ score: score })
+      .eq('pseudo', PSEUDO_JOUEUR);
+
+    if(error) console.log('Erreur score:', error.message);
+  });
+
+</script>
+
+</body>
+</html>
