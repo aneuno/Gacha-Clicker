@@ -55,6 +55,7 @@ const supabaseClient = supabase.createClient(
 
 let clicks = 0
 let userId = null
+let saveTimeout = null  // pour le timer de sauvegarde
 
 async function load(){
 
@@ -118,22 +119,29 @@ document.getElementById("logout").onclick = function(){
   })
 }
 
+// Fonction pour sauvegarder le score
+async function saveScore(){
+  await supabaseClient
+    .from("player_progress")
+    .update({
+      click_count: clicks,
+      total_score: supabaseClient.raw('total_score + ' + clicks),
+      last_click: new Date(),
+      updated_at: new Date()
+    })
+    .eq("user_id", userId)
+}
+
 // Gestion du click
-document.getElementById("click").onclick = async function(){
+document.getElementById("click").onclick = function(){
 
   clicks++
   document.getElementById("score").textContent = clicks
   document.getElementById("profileScore").textContent = clicks
 
-  await supabaseClient
-    .from("player_progress")
-    .update({
-      click_count: clicks,
-      total_score: supabaseClient.raw('total_score + 1'),
-      last_click: new Date(),
-      updated_at: new Date()
-    })
-    .eq("user_id", userId)
+  // réinitialiser le timer de sauvegarde
+  if(saveTimeout) clearTimeout(saveTimeout)
+  saveTimeout = setTimeout(saveScore, 2000)  // sauvegarde si pas de clic pendant 2s
 }
 
 load()
