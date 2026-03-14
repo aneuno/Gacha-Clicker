@@ -26,14 +26,13 @@
 
 <!-- Librairie Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
 <script>
-  // 🔹 Initialiser Supabase
+  // Initialiser Supabase
   const supabaseUrl = 'https://zbyvhlhnjefpodjdnfdy.supabase.co';
   const supabaseKey = 'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l';
   const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  let PSEUDO_JOUEUR; // pseudo du joueur connecté
+  let PSEUDO_JOUEUR = null;
   let score = 0;
 
   const clickerBtn = document.getElementById('clicker');
@@ -45,33 +44,37 @@
     clickerBtn.style.display = 'inline';
   }
 
-  // 🔹 Création de compte
+  // Création de compte
   document.getElementById('formCreate').addEventListener('submit', async (e) => {
     e.preventDefault();
     const pseudo = document.getElementById('pseudo').value;
     const password = document.getElementById('password').value;
 
-    // Vérifie si le pseudo existe déjà
+    // Vérifie si pseudo existe déjà
     const { data: existing, error: err1 } = await supabase
       .from('users')
-      .select('*')
+      .select('pseudo')
       .eq('pseudo', pseudo)
       .single();
 
-    if(existing) {
+    if (existing) {
       alert('Pseudo déjà utilisé !');
       return;
     }
 
+    // Insert nouveau joueur
     const { data, error } = await supabase
       .from('users')
       .insert([{ pseudo: pseudo, password: password, score: 0 }]);
 
-    if(error) alert('Erreur : ' + error.message);
-    else alert('Compte créé !');
+    if (error) {
+      alert('Erreur : ' + error.message);
+    } else {
+      alert('Compte créé !');
+    }
   });
 
-  // 🔹 Connexion
+  // Connexion
   document.getElementById('formLogin').addEventListener('submit', async (e) => {
     e.preventDefault();
     const pseudo = document.getElementById('loginPseudo').value;
@@ -83,23 +86,23 @@
       .eq('pseudo', pseudo)
       .single();
 
-    if(error || !data) {
+    if (error || !data) {
       alert('Utilisateur non trouvé');
       return;
     }
 
-    if(data.password !== password) {
+    if (data.password !== password) {
       alert('Mot de passe incorrect');
       return;
     }
 
     PSEUDO_JOUEUR = pseudo;
-    alert('Connecté ! Score actuel : ' + data.score);
     afficherClicker(data.score);
   });
 
-  // 🔹 Clicker
+  // Clicker
   clickerBtn.addEventListener('click', async () => {
+    if (!PSEUDO_JOUEUR) return;
     score += 1;
     scoreDisplay.textContent = score;
 
@@ -108,9 +111,8 @@
       .update({ score: score })
       .eq('pseudo', PSEUDO_JOUEUR);
 
-    if(error) console.log('Erreur score:', error.message);
+    if (error) console.log('Erreur score:', error.message);
   });
-
 </script>
 
 </body>
