@@ -68,46 +68,61 @@ async function load(){
     return
   }
 
-  userId = user.id
+  userId = parseInt(user.id, 10)  // id en int8 pour la table users
+
+  // récupérer pseudo depuis la table users
+  let { data: userData } = await supabaseClient
+    .from("users")
+    .select("pseudo")
+    .eq("id", userId)
+    .single()
+
+  if(!userData || !userData.pseudo){
+    // demander un pseudo
+    pseudo = prompt("Bienvenue ! Choisis ton pseudo :","Joueur")
+    if(!pseudo) pseudo = "Joueur"
+
+    // vérifier si l'entrée existe déjà pour éviter doublon
+    if(!userData){
+      await supabaseClient
+        .from("users")
+        .insert({
+          id: userId,
+          pseudo: pseudo
+        })
+    } else {
+      await supabaseClient
+        .from("users")
+        .update({ pseudo: pseudo })
+        .eq("id", userId)
+    }
+  } else {
+    pseudo = userData.pseudo
+  }
+
+  document.getElementById("welcome").textContent = `Salut ${pseudo} !`
 
   // récupérer progression joueur
   let { data: progress } = await supabaseClient
     .from("player_progress")
-    .select("click_count,pseudo")
-    .eq("user_id", userId)
+    .select("click_count")
+    .eq("user_id", user.id)
     .single()
 
-  // si le joueur n'existe pas encore, créer l'entrée
+  // créer si pas existant
   if(!progress){
-    progress = {
-      click_count: 0,
-      pseudo: ""
-    }
     await supabaseClient
       .from("player_progress")
       .insert({
-        user_id: userId,
-        click_count: 0,
-        pseudo: ""
+        user_id: user.id,
+        click_count: 0
       })
-  }
-
-  clicks = progress.click_count || 0
-  document.getElementById("score").textContent = clicks
-
-  // si le pseudo n'est pas encore défini, demander au joueur
-  if(!progress.pseudo){
-    pseudo = prompt("Bienvenue ! Choisis ton pseudo :","Joueur")
-    if(!pseudo) pseudo = "Joueur"
-    await supabaseClient
-      .from("player_progress")
-      .update({ pseudo: pseudo })
-      .eq("user_id", userId)
+    clicks = 0
   } else {
-    pseudo = progress.pseudo
+    clicks = progress.click_count || 0
   }
 
-  document.getElementById("welcome").textContent = `Salut ${pseudo} !`
+  document.getElementById("score").textContent = clicks
 
   // afficher dans le menu profil
   loadProfile()
