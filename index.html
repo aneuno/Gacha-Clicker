@@ -1,107 +1,90 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Test Supabase Compte</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gacha Clicker - Connexion</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
 
-<h2>Créer un compte</h2>
-<form id="formCreate">
-  <input type="text" id="pseudo" placeholder="Pseudo" required>
-  <input type="password" id="password" placeholder="Mot de passe" required>
-  <button type="submit">Créer le compte</button>
-</form>
+  <div class="w-full max-w-sm p-8 bg-gray-800 rounded-xl shadow-lg">
 
-<h2>Connexion</h2>
-<form id="formLogin">
-  <input type="text" id="loginPseudo" placeholder="Pseudo" required>
-  <input type="password" id="loginPassword" placeholder="Mot de passe" required>
-  <button type="submit">Connexion</button>
-</form>
+    <h1 class="text-3xl font-bold text-center mb-6">Gacha Clicker</h1>
 
-<div id="menu" style="display:none;">
-  <h2>fonctionable</h2>
-</div>
+    <!-- Formulaire connexion -->
+    <form id="login-form" class="space-y-4">
+      <input id="email" type="email" placeholder="Email" required class="w-full p-3 bg-gray-700 rounded">
+      <input id="password" type="password" placeholder="Mot de passe" required class="w-full p-3 bg-gray-700 rounded">
+      <button type="submit" class="w-full p-3 bg-blue-600 rounded font-bold hover:bg-blue-700">Se connecter</button>
+    </form>
 
-<p id="message" style="color:red;"></p>
+    <div class="text-center my-4">ou</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-  const supabaseUrl = 'https://zbyvhlhnjefpodjdnfdy.supabase.co';
-  const supabaseKey = 'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    <!-- Formulaire inscription -->
+    <form id="signup-form" class="space-y-4 hidden">
+      <input id="pseudo" type="text" placeholder="Pseudo" required class="w-full p-3 bg-gray-700 rounded">
+      <input id="signup-email" type="email" placeholder="Email" required class="w-full p-3 bg-gray-700 rounded">
+      <input id="signup-password" type="password" placeholder="Mot de passe" required class="w-full p-3 bg-gray-700 rounded">
+      <button type="submit" class="w-full p-3 bg-green-600 rounded font-bold hover:bg-green-700">Créer un compte</button>
+    </form>
 
-  const messageEl = document.getElementById('message');
+    <button id="toggle-btn" class="w-full mt-4 text-blue-400">Pas de compte ? Inscris-toi</button>
 
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*[!@#$%^&*]).{6,}$/;
+    <p id="message" class="text-center mt-4 text-red-400 min-h-[1.5rem]"></p>
+  </div>
 
-  // Création compte
-  document.getElementById('formCreate').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    messageEl.textContent = '';
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-    const pseudo = document.getElementById('pseudo').value.trim();
-    const password = document.getElementById('password').value;
+    const supabase = createClient(
+      'https://xxxxxxxxxxxxxxxx.supabase.co',  // ← TON URL Supabase
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4eHh4eHh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU5NzEyMzQsImV4cCI6MjA0MTU0NzIzNH0.xxxxxxxxxxxxxxxxxxxxxxxxxxxxx'  // ← TA CLÉ ANON
+    )
 
-    if(!passwordRegex.test(password)) {
-      messageEl.textContent = 'Mot de passe invalide : min 6 caractères, 1 lettre, 1 caractère spécial';
-      return;
+    const loginForm = document.getElementById('login-form')
+    const signupForm = document.getElementById('signup-form')
+    const toggleBtn = document.getElementById('toggle-btn')
+    const message = document.getElementById('message')
+
+    toggleBtn.onclick = () => {
+      loginForm.classList.toggle('hidden')
+      signupForm.classList.toggle('hidden')
+      toggleBtn.textContent = loginForm.classList.contains('hidden') 
+        ? "Déjà un compte ? Connecte-toi" 
+        : "Pas de compte ? Inscris-toi"
     }
 
-    // Vérifie si pseudo existe
-    const { data: existing, error: err1 } = await supabase
-      .from('users')
-      .select('pseudo')
-      .eq('pseudo', pseudo)
-      .single();
+    loginForm.onsubmit = async e => {
+      e.preventDefault()
+      const email = document.getElementById('email').value
+      const password = document.getElementById('password').value
 
-    if(existing) {
-      messageEl.textContent = 'Pseudo déjà utilisé !';
-      return;
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) return message.textContent = error.message
+      window.location.href = 'game.html'
     }
 
-    const { data, error } = await supabase
-      .from('users')
-      .insert([{ pseudo: pseudo, password: password, score: 0 }]);
+    signupForm.onsubmit = async e => {
+      e.preventDefault()
+      const pseudo = document.getElementById('pseudo').value.trim()
+      const email = document.getElementById('signup-email').value
+      const password = document.getElementById('signup-password').value
 
-    if(error) {
-      messageEl.textContent = 'Erreur création compte : ' + error.message;
-    } else {
-      messageEl.style.color = 'green';
-      messageEl.textContent = 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.';
-    }
-  });
+      const { error } = await supabase.auth.signUp({
+        email, password,
+        options: { data: { pseudo } }
+      })
 
-  // Connexion
-  document.getElementById('formLogin').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    messageEl.textContent = '';
-
-    const pseudo = document.getElementById('loginPseudo').value.trim();
-    const password = document.getElementById('loginPassword').value;
-
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('pseudo', pseudo)
-      .single();
-
-    if(error || !data) {
-      messageEl.textContent = 'Utilisateur non trouvé';
-      return;
+      if (error) return message.textContent = error.message
+      message.textContent = "Compte créé ! Tu peux te connecter."
+      toggleBtn.click()  // repasse sur connexion
     }
 
-    if(data.password !== password) {
-      messageEl.textContent = 'Mot de passe incorrect';
-      return;
-    }
-
-    document.getElementById('formCreate').style.display = 'none';
-    document.getElementById('formLogin').style.display = 'none';
-    document.getElementById('menu').style.display = 'block';
-  });
-
-</script>
+    // Si déjà connecté → direct au jeu
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) window.location.href = 'game.html'
+    })
+  </script>
 </body>
 </html>
