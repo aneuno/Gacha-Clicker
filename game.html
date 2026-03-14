@@ -54,17 +54,17 @@ return
 
 userId = user.id
 
-const { data: profile } = await supabaseClient
-.from("profiles")
-.select("pseudo, score")
+// récupérer progression joueur
+const { data: progress } = await supabaseClient
+.from("player_progress")
+.select("click_count")
 .eq("user_id", userId)
 .single()
 
-document.getElementById("welcome").textContent =
-`Salut ${profile?.pseudo || "Joueur"} !`
-
-clicks = profile?.score || 0
+clicks = progress?.click_count || 0
 document.getElementById("score").textContent = clicks
+
+document.getElementById("welcome").textContent = "Salut Joueur !"
 
 }
 
@@ -74,8 +74,12 @@ clicks++
 document.getElementById("score").textContent = clicks
 
 await supabaseClient
-.from("profiles")
-.update({ score: clicks })
+.from("player_progress")
+.update({
+click_count: clicks,
+last_click: new Date(),
+updated_at: new Date()
+})
 .eq("user_id", userId)
 
 }
