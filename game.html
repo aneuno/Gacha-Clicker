@@ -4,123 +4,157 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gacha Clicker - Jeu</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
+
 <body class="bg-gray-900 text-white min-h-screen p-6">
+
 <h1 class="text-4xl font-bold text-center mb-8">Gacha Clicker</h1>
+
 <!-- Menu Profil en haut à droite -->
 <div class="absolute top-6 right-6">
-&nbsp;&nbsp;<button id="profileBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
-&nbsp;&nbsp;&nbsp;&nbsp;Profil
-&nbsp;&nbsp;</button>
-&nbsp;&nbsp;<div id="profileMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg mt-2 text-white w-48">
-&nbsp;&nbsp;&nbsp;&nbsp;<p><strong>Score actuel :</strong> <span id="profileScore">0</span></p>
-&nbsp;&nbsp;&nbsp;&nbsp;<button id="logoutMenu" class="mt-3 w-full py-2 bg-red-600 rounded hover:bg-red-700">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Déconnexion
-&nbsp;&nbsp;&nbsp;&nbsp;</button>
-&nbsp;&nbsp;</div>
+  <button id="profileBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
+    Profil
+  </button>
+
+  <div id="profileMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg mt-2 text-white w-48">
+    <p><strong>Score actuel :</strong> <span id="profileScore">0</span></p>
+    <button id="logoutMenu" class="mt-3 w-full py-2 bg-red-600 rounded hover:bg-red-700">
+      Déconnexion
+    </button>
+  </div>
 </div>
+
 <div class="max-w-md mx-auto bg-gray-800 p-8 rounded-xl">
+
 <p id="welcome" class="text-xl mb-6 text-center">Chargement...</p>
+
 <div class="text-2xl mb-4">
 Score : <span id="score">0</span>
 </div>
+
 <button id="click" class="w-full py-6 bg-purple-700 rounded-xl text-3xl font-bold mb-6 hover:bg-purple-600">
 Clique.
 </button>
+
 <button id="logout" class="w-full py-3 bg-red-600 rounded hover:bg-red-700">
 Déconnexion
 </button>
+
 </div>
+
 <script>
+
 const supabaseClient = supabase.createClient(
-&nbsp;&nbsp;'https://zbyvhlhnjefpodjdnfdy.supabase.co',
-&nbsp;&nbsp;'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
+  'https://zbyvhlhnjefpodjdnfdy.supabase.co',
+  'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
 )
+
 let clicks = 0
 let lastSavedClicks = 0
 let userId = null
-let saveTimeout = null // pour le timer de sauvegarde
+let saveTimeout = null  // pour le timer de sauvegarde
+
 async function load(){
-&nbsp;&nbsp;const { data } = await supabaseClient.auth.getUser()
-&nbsp;&nbsp;const user = data?.user
-&nbsp;&nbsp;if(!user){
-&nbsp;&nbsp;&nbsp;&nbsp;window.location.href = "index.html"
-&nbsp;&nbsp;&nbsp;&nbsp;return
-&nbsp;&nbsp;}
-&nbsp;&nbsp;userId = user.id
-&nbsp;&nbsp;// récupérer progression joueur
-&nbsp;&nbsp;let { data: progress } = await supabaseClient
-&nbsp;&nbsp;&nbsp;&nbsp;.from("player_progress")
-&nbsp;&nbsp;&nbsp;&nbsp;.select("click_count,total_score,gacha_points,pity_counter,last_click")
-&nbsp;&nbsp;&nbsp;&nbsp;.eq("user_id", userId)
-&nbsp;&nbsp;&nbsp;&nbsp;.single()
-&nbsp;&nbsp;// créer entrée si elle n'existe pas
-&nbsp;&nbsp;if(!progress){
-&nbsp;&nbsp;&nbsp;&nbsp;await supabaseClient
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.from("player_progress")
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.insert({
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user_id: userId,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;click_count: 0,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;total_score: 0,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gacha_points: 0,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pity_counter: 0,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;last_click: new Date(),
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;updated_at: new Date()
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})
-&nbsp;&nbsp;&nbsp;&nbsp;clicks = 0
-&nbsp;&nbsp;} else {
-&nbsp;&nbsp;&nbsp;&nbsp;clicks = progress.click_count || 0
-&nbsp;&nbsp;}
-&nbsp;&nbsp;lastSavedClicks = clicks
-&nbsp;&nbsp;document.getElementById("score").textContent = clicks
-&nbsp;&nbsp;document.getElementById("profileScore").textContent = clicks
-&nbsp;&nbsp;document.getElementById("welcome").textContent = "Salut Joueur !"
+
+  const { data } = await supabaseClient.auth.getUser()
+  const user = data?.user
+
+  if(!user){
+    window.location.href = "index.html"
+    return
+  }
+
+  userId = user.id
+
+  // récupérer progression joueur
+  let { data: progress } = await supabaseClient
+    .from("player_progress")
+    .select("click_count,total_score,gacha_points,pity_counter,last_click")
+    .eq("user_id", userId)
+    .single()
+
+  // créer entrée si elle n'existe pas
+  if(!progress){
+    await supabaseClient
+      .from("player_progress")
+      .insert({
+        user_id: userId,
+        click_count: 0,
+        total_score: 0,
+        gacha_points: 0,
+        pity_counter: 0,
+        last_click: new Date(),
+        updated_at: new Date()
+      })
+    clicks = 0
+  } else {
+    clicks = progress.click_count || 0
+  }
+
+  lastSavedClicks = clicks
+
+  document.getElementById("score").textContent = clicks
+  document.getElementById("profileScore").textContent = clicks
+  document.getElementById("welcome").textContent = "Salut Joueur !"
 }
+
 // Afficher le menu quand on clique sur le bouton Profil
 document.getElementById("profileBtn").onclick = function() {
-&nbsp;&nbsp;const menu = document.getElementById("profileMenu");
-&nbsp;&nbsp;menu.classList.toggle("hidden");
+  const menu = document.getElementById("profileMenu");
+  menu.classList.toggle("hidden");
 }
+
 // Déconnexion depuis le menu
 document.getElementById("logoutMenu").onclick = function() {
-&nbsp;&nbsp;supabaseClient.auth.signOut().then(()=>{
-&nbsp;&nbsp;&nbsp;&nbsp;location.href = "index.html";
-&nbsp;&nbsp;})
+  supabaseClient.auth.signOut().then(()=>{
+    location.href = "index.html";
+  })
 }
+
 // Déconnexion bouton principal
 document.getElementById("logout").onclick = function(){
-&nbsp;&nbsp;supabaseClient.auth.signOut().then(()=>{
-&nbsp;&nbsp;&nbsp;&nbsp;location.href = "index.html"
-&nbsp;&nbsp;})
+  supabaseClient.auth.signOut().then(()=>{
+    location.href = "index.html"
+  })
 }
+
 // Fonction pour sauvegarder le score
 async function saveScore(){
-&nbsp;&nbsp;const newClicks = clicks - lastSavedClicks
-&nbsp;&nbsp;if(newClicks > 0){
-&nbsp;&nbsp;&nbsp;&nbsp;await supabaseClient
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.from("player_progress")
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.update({
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;click_count: clicks,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;total_score: supabaseClient.raw(`total_score + ${newClicks}`),
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;last_click: new Date(),
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;updated_at: new Date()
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.eq("user_id", userId)
-&nbsp;&nbsp;&nbsp;&nbsp;lastSavedClicks = clicks
-&nbsp;&nbsp;}
+  const newClicks = clicks - lastSavedClicks
+  if(newClicks > 0){
+    await supabaseClient
+      .from("player_progress")
+      .update({
+        click_count: clicks,
+        total_score: supabaseClient.raw(`total_score + ${newClicks}`),
+        last_click: new Date(),
+        updated_at: new Date()
+      })
+      .eq("user_id", userId)
+
+    lastSavedClicks = clicks
+  }
 }
+
 // Gestion du click
 document.getElementById("click").onclick = function(){
-&nbsp;&nbsp;clicks++
-&nbsp;&nbsp;document.getElementById("score").textContent = clicks
-&nbsp;&nbsp;document.getElementById("profileScore").textContent = clicks
-&nbsp;&nbsp;// réinitialiser le timer de sauvegarde
-&nbsp;&nbsp;if(saveTimeout) clearTimeout(saveTimeout)
-&nbsp;&nbsp;saveTimeout = setTimeout(saveScore, 2000) // sauvegarde si pas de clic pendant 2s
+
+  clicks++
+  document.getElementById("score").textContent = clicks
+  document.getElementById("profileScore").textContent = clicks
+
+  // réinitialiser le timer de sauvegarde
+  if(saveTimeout) clearTimeout(saveTimeout)
+  saveTimeout = setTimeout(saveScore, 2000)  // sauvegarde si pas de clic pendant 2s
 }
+
 load()
+
 </script>
+
 </body>
 </html>
