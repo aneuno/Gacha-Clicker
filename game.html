@@ -21,7 +21,6 @@
   </button>
 
   <div id="profileMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg mt-2 text-white w-48">
-    <p><strong>Pseudo :</strong> <span id="profileName">...</span></p>
     <p><strong>Score actuel :</strong> <span id="profileScore">0</span></p>
     <button id="logoutMenu" class="mt-3 w-full py-2 bg-red-600 rounded hover:bg-red-700">
       Déconnexion
@@ -56,7 +55,6 @@ const supabaseClient = supabase.createClient(
 
 let clicks = 0
 let userId = null
-let pseudo = null
 
 async function load(){
 
@@ -68,54 +66,27 @@ async function load(){
     return
   }
 
-  userId = parseInt(user.id, 10)  // id en int8 pour la table users
-
-  // récupérer pseudo depuis la table users
-  let { data: userData } = await supabaseClient
-    .from("users")
-    .select("pseudo")
-    .eq("id", userId)
-    .single()
-
-  if(!userData || !userData.pseudo){
-    // demander un pseudo
-    pseudo = prompt("Bienvenue ! Choisis ton pseudo :","Joueur")
-    if(!pseudo) pseudo = "Joueur"
-
-    // vérifier si l'entrée existe déjà pour éviter doublon
-    if(!userData){
-      await supabaseClient
-        .from("users")
-        .insert({
-          id: userId,
-          pseudo: pseudo
-        })
-    } else {
-      await supabaseClient
-        .from("users")
-        .update({ pseudo: pseudo })
-        .eq("id", userId)
-    }
-  } else {
-    pseudo = userData.pseudo
-  }
-
-  document.getElementById("welcome").textContent = `Salut ${pseudo} !`
+  userId = user.id
 
   // récupérer progression joueur
   let { data: progress } = await supabaseClient
     .from("player_progress")
-    .select("click_count")
-    .eq("user_id", user.id)
+    .select("click_count,total_score,gacha_points,pity_counter,last_click")
+    .eq("user_id", userId)
     .single()
 
-  // créer si pas existant
+  // créer entrée si elle n'existe pas
   if(!progress){
     await supabaseClient
       .from("player_progress")
       .insert({
-        user_id: user.id,
-        click_count: 0
+        user_id: userId,
+        click_count: 0,
+        total_score: 0,
+        gacha_points: 0,
+        pity_counter: 0,
+        last_click: new Date(),
+        updated_at: new Date()
       })
     clicks = 0
   } else {
@@ -123,21 +94,14 @@ async function load(){
   }
 
   document.getElementById("score").textContent = clicks
-
-  // afficher dans le menu profil
-  loadProfile()
+  document.getElementById("profileScore").textContent = clicks
+  document.getElementById("welcome").textContent = "Salut Joueur !"
 }
 
 // Afficher le menu quand on clique sur le bouton Profil
 document.getElementById("profileBtn").onclick = function() {
   const menu = document.getElementById("profileMenu");
   menu.classList.toggle("hidden");
-}
-
-// Charger les infos du profil
-function loadProfile(){
-  document.getElementById("profileName").textContent = pseudo
-  document.getElementById("profileScore").textContent = clicks
 }
 
 // Déconnexion depuis le menu
@@ -165,6 +129,7 @@ document.getElementById("click").onclick = async function(){
     .from("player_progress")
     .update({
       click_count: clicks,
+      total_score: supabaseClient.raw('total_score + 1'),
       last_click: new Date(),
       updated_at: new Date()
     })
