@@ -1,140 +1,146 @@
-<script>
-const supabase = supabase.createClient(
-  'https://zbyvhlhnjefpodjdnfdy.supabase.co',
-  'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
-)
+<script type="module">
+  // Import moderne via esm.sh (plus fiable que jsdelivr pour ESM en browser en 2026)
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-let clicks = 0
-let totalScore = 0
-let lastSavedClicks = 0
-let userId = null
-let saveTimeout = null
+  const supabase = createClient(
+    'https://zbyvhlhnjefpodjdnfdy.supabase.co',
+    'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
+  )
 
-// ────────────────────────────────────────────────
-// CHARGEMENT DES DONNÉES AU DÉMARRAGE
-// ────────────────────────────────────────────────
-async function load() {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  
-  if (authError || !user) {
-    window.location.href = "index.html"
-    return
-  }
+  let clicks = 0
+  let totalScore = 0
+  let lastSavedClicks = 0
+  let userId = null
+  let saveTimeout = null
 
-  userId = user.id
+  // ────────────────────────────────────────────────
+  // FONCTION DE CHARGEMENT (avec try/catch pour debug)
+  // ────────────────────────────────────────────────
+  async function load() {
+    try {
+      console.log("Début du chargement...")
 
-  // Récupération progression + pseudo
-  const { data: progress, error } = await supabase
-    .from("player_progress")
-    .select("click_count, total_score, gacha_points, pity_counter, last_click")
-    .eq("user_id", userId)
-    .maybeSingle()   // .maybeSingle() → gère le cas "pas de ligne" sans erreur
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !user) {
+        console.log("Pas d'utilisateur → redirection")
+        window.location.href = "index.html"
+        return
+      }
 
-  let pseudo = user.user_metadata?.pseudo || user.email?.split('@')[0] || "Joueur"
+      userId = user.id
+      console.log("Utilisateur trouvé :", user.id)
 
-  if (error) {
-    console.error("Erreur lecture progression :", error)
-    document.getElementById("welcome").textContent = "Erreur de chargement..."
-    return
-  }
+      // Récupération progression
+      const { data: progress, error } = await supabase
+        .from("player_progress")
+        .select("click_count, total_score")
+        .eq("user_id", userId)
+        .maybeSingle()
 
-  if (!progress) {
-    // Première fois → création de la ligne
-    const { error: insertError } = await supabase
-      .from("player_progress")
-      .insert({
-        user_id: userId,
-        click_count: 0,
-        total_score: 0,
-        gacha_points: 0,
-        pity_counter: 0,
-        last_click: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
+      let pseudo = user.user_metadata?.pseudo || user.email?.split('@')[0] || "Joueur"
 
-    if (insertError) {
-      console.error("Erreur création progression :", insertError)
-      document.getElementById("welcome").textContent = "Erreur d'initialisation..."
-      return
+      if (error) {
+        console.error("Erreur lecture progression :", error)
+        document.getElementById("welcome").textContent = "Erreur de chargement..."
+        return
+      }
+
+      if (!progress) {
+        console.log("Pas de progression → création")
+        const { error: insertError } = await supabase
+          .from("player_progress")
+          .insert({
+            user_id: userId,
+            click_count: 0,
+            total_score: 0,
+            last_click: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+
+        if (insertError) throw insertError
+
+        clicks = 0
+        totalScore = 0
+      } else {
+        clicks = Number(progress.click_count) || 0
+        totalScore = Number(progress.total_score) || 0
+      }
+
+      lastSavedClicks = clicks
+
+      // Mise à jour affichage
+      document.getElementById("score").textContent = clicks
+      document.getElementById("profileScore").textContent = clicks
+      document.getElementById("welcome").textContent = `Salut ${pseudo} !`
+      console.log("Chargement terminé OK")
+
+    } catch (err) {
+      console.error("ERREUR FATALE dans load() :", err)
+      document.body.innerHTML += `<p style="color:red; text-align:center;">Erreur : ${err.message || 'inconnue'}</p>`
     }
-
-    clicks = 0
-    totalScore = 0
-  } else {
-    clicks = Number(progress.click_count) || 0
-    totalScore = Number(progress.total_score) || 0
   }
 
-  lastSavedClicks = clicks
+  // ────────────────────────────────────────────────
+  // ÉVÉNEMENTS
+  // ────────────────────────────────────────────────
+  document.getElementById("profileBtn")?.addEventListener("click", () => {
+    document.getElementById("profileMenu").classList.toggle("hidden")
+  })
 
-  // Mise à jour interface
-  document.getElementById("score").textContent = clicks
-  document.getElementById("profileScore").textContent = clicks
-  document.getElementById("welcome").textContent = `Salut ${pseudo} !`
-}
-
-// ────────────────────────────────────────────────
-// ÉVÉNEMENTS INTERFACE
-// ────────────────────────────────────────────────
-document.getElementById("profileBtn").onclick = () => {
-  document.getElementById("profileMenu").classList.toggle("hidden")
-}
-
-document.getElementById("logoutMenu").onclick = 
-document.getElementById("logout").onclick = async () => {
-  await supabase.auth.signOut()
-  window.location.href = "index.html"
-}
-
-// ────────────────────────────────────────────────
-// SAUVEGARDE OPTIMISÉE
-// ────────────────────────────────────────────────
-async function saveProgress() {
-  if (clicks === lastSavedClicks) return false
-
-  const delta = clicks - lastSavedClicks
-  totalScore += delta
-
-  const { error } = await supabase
-    .from("player_progress")
-    .update({
-      click_count: clicks,
-      total_score: totalScore,
-      last_click: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    })
-    .eq("user_id", userId)
-
-  if (error) {
-    console.error("Échec sauvegarde :", error.message)
-    return false
+  const logout = async () => {
+    await supabase.auth.signOut()
+    window.location.href = "index.html"
   }
 
-  lastSavedClicks = clicks
-  return true
-}
+  document.getElementById("logoutMenu")?.addEventListener("click", logout)
+  document.getElementById("logout")?.addEventListener("click", logout)
 
-// Clic principal
-document.getElementById("click").onclick = () => {
-  clicks++
-  document.getElementById("score").textContent = clicks
-  document.getElementById("profileScore").textContent = clicks
+  // ────────────────────────────────────────────────
+  // SAUVEGARDE
+  // ────────────────────────────────────────────────
+  async function saveProgress() {
+    if (clicks === lastSavedClicks) return
 
-  clearTimeout(saveTimeout)
-  saveTimeout = setTimeout(saveProgress, 1800)  // ~2 secondes d'inactivité
-}
+    const delta = clicks - lastSavedClicks
+    totalScore += delta
 
-// Sauvegarde périodique (sécurité supplémentaire)
-setInterval(saveProgress, 7000)
+    try {
+      const { error } = await supabase
+        .from("player_progress")
+        .update({
+          click_count: clicks,
+          total_score: totalScore,
+          last_click: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq("user_id", userId)
 
-// Tentative de sauvegarde à la fermeture / rechargement
-window.addEventListener('beforeunload', () => {
-  if (clicks !== lastSavedClicks) {
-    saveProgress()  // version synchrone limitée, mais mieux que rien
-    // Pour une vraie fiabilité : envisager une Edge Function + sendBeacon plus tard
+      if (error) throw error
+
+      lastSavedClicks = clicks
+      console.log("Sauvegarde OK")
+    } catch (err) {
+      console.error("Erreur sauvegarde :", err)
+    }
   }
-})
 
-// Lancement
-load()
+  document.getElementById("click")?.addEventListener("click", () => {
+    clicks++
+    document.getElementById("score").textContent = clicks
+    document.getElementById("profileScore").textContent = clicks
+
+    clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(saveProgress, 1800)
+  })
+
+  // Sauvegarde sécurité
+  setInterval(saveProgress, 7000)
+
+  window.addEventListener('beforeunload', () => {
+    if (clicks !== lastSavedClicks) saveProgress()
+  })
+
+  // Lancement
+  load()
 </script>
