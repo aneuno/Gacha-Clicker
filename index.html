@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Compte Gacha</title>
+<meta charset="UTF-8">
+<title>Test Supabase Compte</title>
 </head>
 <body>
 
@@ -24,29 +24,32 @@
   <h2>fonctionable</h2>
 </div>
 
+<p id="message" style="color:red;"></p>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
-  // 🔹 Initialisation Supabase
   const supabaseUrl = 'https://zbyvhlhnjefpodjdnfdy.supabase.co';
   const supabaseKey = 'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l';
   const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // 🔹 Regex mot de passe
+  const messageEl = document.getElementById('message');
+
   const passwordRegex = /^(?=.*[A-Za-z])(?=.*[!@#$%^&*]).{6,}$/;
 
-  // 🔹 Création de compte
+  // Création compte
   document.getElementById('formCreate').addEventListener('submit', async (e) => {
     e.preventDefault();
+    messageEl.textContent = '';
+
     const pseudo = document.getElementById('pseudo').value.trim();
     const password = document.getElementById('password').value;
 
-    // Vérifie mot de passe
     if(!passwordRegex.test(password)) {
-      alert('Mot de passe invalide : min 6 caractères, 1 lettre et 1 caractère spécial');
+      messageEl.textContent = 'Mot de passe invalide : min 6 caractères, 1 lettre, 1 caractère spécial';
       return;
     }
 
-    // Vérifie si pseudo existe déjà
+    // Vérifie si pseudo existe
     const { data: existing, error: err1 } = await supabase
       .from('users')
       .select('pseudo')
@@ -54,22 +57,27 @@
       .single();
 
     if(existing) {
-      alert('Pseudo déjà utilisé !');
+      messageEl.textContent = 'Pseudo déjà utilisé !';
       return;
     }
 
-    // Crée le compte
     const { data, error } = await supabase
       .from('users')
       .insert([{ pseudo: pseudo, password: password, score: 0 }]);
 
-    if(error) alert('Erreur : ' + error.message);
-    else alert('Compte créé avec succès !');
+    if(error) {
+      messageEl.textContent = 'Erreur création compte : ' + error.message;
+    } else {
+      messageEl.style.color = 'green';
+      messageEl.textContent = 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.';
+    }
   });
 
-  // 🔹 Connexion
+  // Connexion
   document.getElementById('formLogin').addEventListener('submit', async (e) => {
     e.preventDefault();
+    messageEl.textContent = '';
+
     const pseudo = document.getElementById('loginPseudo').value.trim();
     const password = document.getElementById('loginPassword').value;
 
@@ -80,22 +88,20 @@
       .single();
 
     if(error || !data) {
-      alert('Utilisateur non trouvé');
+      messageEl.textContent = 'Utilisateur non trouvé';
       return;
     }
 
     if(data.password !== password) {
-      alert('Mot de passe incorrect');
+      messageEl.textContent = 'Mot de passe incorrect';
       return;
     }
 
-    // Affiche le menu simple
     document.getElementById('formCreate').style.display = 'none';
     document.getElementById('formLogin').style.display = 'none';
     document.getElementById('menu').style.display = 'block';
   });
 
 </script>
-
 </body>
 </html>
