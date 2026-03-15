@@ -38,7 +38,7 @@
       height: 25px;
       background: #6d28d9;
       border-radius: 45%;
-      animation: wave 1.2s linear infinite;
+      animation: wave 4s linear infinite;
     }
 
     #liquidFill::after {
@@ -50,7 +50,7 @@
       height: 20px;
       background: #7c3aed;
       border-radius: 40%;
-      animation: wave 1.8s linear infinite reverse;
+      animation: wave 6s linear infinite reverse;
       opacity: 0.6;
     }
 
@@ -124,13 +124,13 @@
       fill.style.transition = "height 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
       fill.style.height = "0%"
 
-      // Étape 2 : remplissage en CSS pur, sans requestAnimationFrame
+      // Étape 2 : remplissage CSS pur sans saccades
       setTimeout(() => {
         fill.style.transition = `height ${COOLDOWN}ms linear`
         fill.style.height = "100%"
       }, 450)
 
-      // Étape 3 : déverrouille le bouton quand c'est plein
+      // Étape 3 : déverrouille le bouton
       setTimeout(() => {
         onCooldown = false
         btn.classList.remove("on-cooldown")
