@@ -29,7 +29,6 @@
     <div class="text-2xl mb-1">Score : <span id="score">0</span></div>
     <div class="text-sm text-yellow-400 mb-6">Total all-time : <span id="totalEver">0</span> clics</div>
     <button id="clickBtn" class="w-full py-6 bg-purple-700 rounded-xl text-3xl font-bold mb-2 hover:bg-purple-600">Clique.</button>
-    <p id="cpsInfo" class="text-center text-sm text-gray-400 mb-6">0 / 15 clics/sec</p>
     <button id="logout" class="w-full py-3 bg-red-600 rounded hover:bg-red-700">Déconnexion</button>
   </div>
 
@@ -44,8 +43,8 @@
     let username = 'Joueur'
     let userId = null
     let saveTimeout = null
-    let clicksThisSecond = 0
-    let cpsResetTimeout = null
+    let lastClickTime = 0
+    const MIN_INTERVAL = 1000 / 15 // 66ms entre chaque clic = 15 CPS max
 
     function updateDisplay() {
       document.getElementById("score").textContent = clicks
@@ -100,20 +99,13 @@
     }
 
     document.getElementById("clickBtn").onclick = function () {
-      if (clicksThisSecond >= 15) return
+      const now = Date.now()
+      if (now - lastClickTime < MIN_INTERVAL) return
 
-      clicksThisSecond++
+      lastClickTime = now
       clicks++
       totalEver++
       updateDisplay()
-
-      document.getElementById("cpsInfo").textContent = `${clicksThisSecond} / 15 clics/sec`
-
-      if (cpsResetTimeout) clearTimeout(cpsResetTimeout)
-      cpsResetTimeout = setTimeout(() => {
-        clicksThisSecond = 0
-        document.getElementById("cpsInfo").textContent = `0 / 15 clics/sec`
-      }, 1000)
 
       if (saveTimeout) clearTimeout(saveTimeout)
       saveTimeout = setTimeout(saveScore, 2000)
