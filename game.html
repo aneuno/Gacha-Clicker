@@ -65,7 +65,8 @@
         .single()
 
       if (!data) {
-        const defaultName = user.email.split("@")[0]
+        // Récupère le pseudo choisi à l'inscription
+        const defaultName = user.user_metadata?.pseudo || user.email.split("@")[0]
         await sb.from("player_scores").insert({
           user_id: userId,
           clicks: 0,
@@ -78,7 +79,7 @@
       } else {
         clicks = data.clicks || 0
         totalEver = data.total_clicks_ever || 0
-        username = data.username || 'Joueur'
+        username = data.username || user.user_metadata?.pseudo || 'Joueur'
       }
 
       document.getElementById("welcome").textContent = `Salut ${username} !`
