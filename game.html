@@ -26,6 +26,7 @@
       height: 100%;
       background: linear-gradient(180deg, #6d28d9, #4c1d95);
       z-index: 1;
+      will-change: height;
     }
 
     #liquidFill::before {
@@ -119,33 +120,21 @@
 
       btn.classList.add("on-cooldown")
 
-      // Vide avec animation fluide
+      // Étape 1 : vidange fluide en 0.4s
       fill.style.transition = "height 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
       fill.style.height = "0%"
 
-      // Attend la fin de la vidange puis reremplie progressivement
+      // Étape 2 : remplissage en CSS pur, sans requestAnimationFrame
       setTimeout(() => {
-        fill.style.transition = "none"
-
-        const start = Date.now()
-
-        function animate() {
-          const elapsed = Date.now() - start
-          const progress = Math.min(elapsed / COOLDOWN, 1)
-
-          fill.style.height = `${progress * 100}%`
-
-          if (progress < 1) {
-            requestAnimationFrame(animate)
-          } else {
-            onCooldown = false
-            btn.classList.remove("on-cooldown")
-            fill.style.height = "100%"
-          }
-        }
-
-        requestAnimationFrame(animate)
+        fill.style.transition = `height ${COOLDOWN}ms linear`
+        fill.style.height = "100%"
       }, 450)
+
+      // Étape 3 : déverrouille le bouton quand c'est plein
+      setTimeout(() => {
+        onCooldown = false
+        btn.classList.remove("on-cooldown")
+      }, 450 + COOLDOWN)
     }
 
     async function load() {
