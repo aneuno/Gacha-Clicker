@@ -103,7 +103,6 @@
     let userId = null
     let saveTimeout = null
     let onCooldown = false
-    let audioCtx = null
 
     const COOLDOWN = 3000
 
@@ -112,41 +111,6 @@
       document.getElementById("totalEver").textContent = totalEver
       document.getElementById("profileScore").textContent = clicks
       document.getElementById("profileTotal").textContent = totalEver
-    }
-
-    function getAudioCtx() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)()
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume()
-      }
-      return audioCtx
-    }
-
-    function playFillSound() {
-      const ctx = getAudioCtx()
-
-      for (let i = 0; i < 8; i++) {
-        setTimeout(() => {
-          const osc = ctx.createOscillator()
-          const gain = ctx.createGain()
-
-          osc.frequency.setValueAtTime(300 + Math.random() * 400, ctx.currentTime)
-          osc.frequency.exponentialRampToValueAtTime(80 + Math.random() * 100, ctx.currentTime + 0.15)
-
-          osc.type = "sine"
-
-          gain.gain.setValueAtTime(0.08, ctx.currentTime)
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15)
-
-          osc.connect(gain)
-          gain.connect(ctx.destination)
-
-          osc.start(ctx.currentTime)
-          osc.stop(ctx.currentTime + 0.15)
-        }, i * 120 + Math.random() * 80)
-      }
     }
 
     function startCooldown() {
@@ -160,11 +124,10 @@
       fill.style.transition = "height 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
       fill.style.height = "0%"
 
-      // Étape 2 : remplissage progressif + son
+      // Étape 2 : remplissage progressif
       setTimeout(() => {
         fill.style.transition = `height ${COOLDOWN}ms linear`
         fill.style.height = "110%"
-        playFillSound()
       }, 450)
 
       // Étape 3 : déverrouille le bouton
