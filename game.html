@@ -32,7 +32,6 @@
       overflow-x: hidden;
     }
 
-    /* Grid background */
     body::before {
       content: '';
       position: fixed;
@@ -45,7 +44,6 @@
       z-index: 0;
     }
 
-    /* Corner decorations */
     body::after {
       content: '';
       position: fixed;
@@ -67,7 +65,6 @@
       padding: 24px;
     }
 
-    /* Header */
     .header {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -95,7 +92,6 @@
       margin: 0 24px;
     }
 
-    /* Top right buttons */
     .top-right {
       position: fixed;
       top: 60px;
@@ -127,7 +123,6 @@
       background: var(--accent-dim);
     }
 
-    /* Dropdown panels */
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -170,13 +165,10 @@
       margin-bottom: 10px;
     }
 
-    .panel-value.gold {
-      color: #c8a84b;
-    }
+    .panel-value.gold { color: #c8a84b; }
 
     .hidden { display: none !important; }
 
-    /* Logout button */
     .logout-btn {
       width: 100%;
       padding: 8px;
@@ -198,13 +190,12 @@
       background: rgba(204, 51, 51, 0.08);
     }
 
-    /* Main click area */
     .main-card {
       background: var(--surface);
       border: 1px solid var(--border);
       padding: 48px 40px;
       width: 100%;
-      max-width: 420px;
+      max-width: 460px;
       position: relative;
       margin-top: 48px;
     }
@@ -217,20 +208,13 @@
       background: linear-gradient(90deg, transparent, var(--accent), transparent);
     }
 
-    /* Corner brackets */
-    .corner {
-      position: absolute;
-      width: 12px; height: 12px;
-    }
+    .corner { position: absolute; width: 12px; height: 12px; }
     .corner-tl { top: -1px; left: -1px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
     .corner-tr { top: -1px; right: -1px; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
     .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
     .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 
-    /* Score display */
-    .score-block {
-      margin-bottom: 32px;
-    }
+    .score-block { margin-bottom: 36px; }
 
     .score-label {
       font-family: 'Share Tech Mono', monospace;
@@ -256,74 +240,69 @@
       letter-spacing: 1px;
     }
 
-    /* Click button */
-    #clickBtn {
-      position: relative;
-      overflow: hidden;
-      width: 100%;
-      padding: 28px;
-      background: var(--surface2);
-      border: 1px solid var(--border-bright);
-      color: var(--text-bright);
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 16px;
-      letter-spacing: 6px;
-      text-transform: uppercase;
+    /* FIOLE */
+    .vial-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
-      clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
+      user-select: none;
     }
 
-    #clickBtn:hover:not(.on-cooldown) {
-      border-color: var(--purple-bright);
+    .vial-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .vial-wrapper:hover .vial-label {
       color: var(--purple-bright);
     }
 
-    #clickBtn.on-cooldown {
-      cursor: not-allowed;
+    .vial-wrapper.on-cooldown .vial-label {
       color: var(--text-dim);
-      border-color: var(--border);
     }
 
-    #clickBtn span {
+    .vial-container {
       position: relative;
-      z-index: 2;
-    }
-
-    #liquidFill {
-      position: absolute;
-      bottom: 0; left: 0;
       width: 100%;
-      height: 0%;
-      background: linear-gradient(180deg, #5b21b6, #3b0764);
-      z-index: 1;
-      will-change: height;
+      height: 80px;
     }
 
-    #liquidFill::before {
-      content: '';
-      position: absolute;
-      top: -12px; left: -50%;
-      width: 200%; height: 25px;
-      background: #6d28d9;
-      border-radius: 45%;
-      animation: wave 4s linear infinite;
+    .vial-svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.3));
+      transition: filter 0.3s;
     }
 
-    #liquidFill::after {
-      content: '';
-      position: absolute;
-      top: -8px; left: -50%;
-      width: 200%; height: 20px;
-      background: #7c3aed;
-      border-radius: 40%;
-      animation: wave 6s linear infinite reverse;
+    .vial-wrapper:hover:not(.on-cooldown) .vial-svg {
+      filter: drop-shadow(0 0 14px rgba(157, 95, 255, 0.5));
+    }
+
+    /* Liquid fill inside SVG */
+    #vialLiquid {
+      transition: none;
+      will-change: height, y;
+    }
+
+    #vialWave1, #vialWave2 {
+      animation: vialWave 4s linear infinite;
+    }
+
+    #vialWave2 {
+      animation-duration: 6s;
+      animation-direction: reverse;
       opacity: 0.6;
     }
 
-    @keyframes wave {
-      0%   { transform: translateX(0) translateZ(0); }
-      100% { transform: translateX(-50%) translateZ(0); }
+    @keyframes vialWave {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
     }
 
     /* Leaderboard */
@@ -354,12 +333,7 @@
       width: 28px;
     }
 
-    .lb-name {
-      flex: 1;
-      color: var(--text);
-      font-weight: 500;
-    }
-
+    .lb-name { flex: 1; color: var(--text); font-weight: 500; }
     .lb-name.me { color: var(--accent); }
 
     .lb-score {
@@ -368,21 +342,17 @@
       color: #c8a84b;
     }
 
-    .lb-row.me-row {
-      background: rgba(74, 158, 255, 0.05);
-    }
+    .lb-row.me-row { background: rgba(74, 158, 255, 0.05); }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <div class="header">
     <span class="header-logo">Gacha Clicker</span>
     <div class="header-line"></div>
     <span style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 2px;" id="headerUsername"></span>
   </div>
 
-  <!-- Top right -->
   <div class="top-right">
     <button class="nav-btn" id="profileBtn">[ Profile ]</button>
     <div class="panel hidden" id="profileMenu">
@@ -405,7 +375,6 @@
     </div>
   </div>
 
-  <!-- Main -->
   <div class="layout">
     <div class="main-card">
       <div class="corner corner-tl"></div>
@@ -419,10 +388,69 @@
         <div class="score-total">ALL-TIME : <span id="totalEver">0</span></div>
       </div>
 
-      <button id="clickBtn">
-        <span>Execute</span>
-        <div id="liquidFill"></div>
-      </button>
+      <!-- FIOLE -->
+      <div class="vial-wrapper" id="clickBtn">
+        <div class="vial-container">
+          <svg class="vial-svg" viewBox="0 0 400 80" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <clipPath id="vialClip">
+                <!-- Forme de fiole horizontale : corps large + col à droite -->
+                <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"/>
+              </clipPath>
+              <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7c3aed"/>
+                <stop offset="100%" stop-color="#3b0764"/>
+              </linearGradient>
+              <linearGradient id="glassShine" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.08)"/>
+                <stop offset="40%" stop-color="rgba(255,255,255,0.02)"/>
+                <stop offset="100%" stop-color="rgba(0,0,0,0.2)"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Liquid group clipped to vial shape -->
+            <g clip-path="url(#vialClip)">
+              <!-- Liquid fill -->
+              <rect id="vialLiquid" x="0" y="80" width="400" height="80" fill="url(#liquidGrad)"/>
+              <!-- Wave 1 -->
+              <g id="vialWave1">
+                <ellipse cx="100" cy="0" rx="200" ry="10" fill="#7c3aed"/>
+                <ellipse cx="300" cy="0" rx="200" ry="10" fill="#7c3aed"/>
+              </g>
+              <!-- Wave 2 -->
+              <g id="vialWave2">
+                <ellipse cx="100" cy="0" rx="200" ry="8" fill="#9d5fff"/>
+                <ellipse cx="300" cy="0" rx="200" ry="8" fill="#9d5fff"/>
+              </g>
+            </g>
+
+            <!-- Vial outline -->
+            <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"
+              fill="none"
+              stroke="#2a4a6b"
+              stroke-width="1.5"/>
+
+            <!-- Glass shine overlay -->
+            <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"
+              fill="url(#glassShine)"/>
+
+            <!-- Inner highlight top -->
+            <path d="M30,14 L330,14 Q346,14 354,24 L360,32"
+              fill="none"
+              stroke="rgba(255,255,255,0.06)"
+              stroke-width="3"
+              stroke-linecap="round"/>
+
+            <!-- Measurement lines -->
+            <line x1="80" y1="64" x2="80" y2="56" stroke="rgba(74,158,255,0.3)" stroke-width="1"/>
+            <line x1="160" y1="64" x2="160" y2="58" stroke="rgba(74,158,255,0.2)" stroke-width="1"/>
+            <line x1="240" y1="64" x2="240" y2="56" stroke="rgba(74,158,255,0.3)" stroke-width="1"/>
+            <line x1="320" y1="64" x2="320" y2="58" stroke="rgba(74,158,255,0.2)" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="vial-label" id="vialLabel">[ Execute ]</div>
+      </div>
+
     </div>
   </div>
 
@@ -440,6 +468,8 @@
     let onCooldown = false
 
     const COOLDOWN = 3000
+    const VIAL_HEIGHT = 80
+    const VIAL_TOP = 0
 
     function updateDisplay() {
       document.getElementById("score").textContent = clicks.toLocaleString()
@@ -448,25 +478,63 @@
       document.getElementById("profileTotal").textContent = totalEver.toLocaleString()
     }
 
+    function setLiquidLevel(percent) {
+      // percent 0 = vide, 1 = plein
+      const liquid = document.getElementById("vialLiquid")
+      const wave1 = document.getElementById("vialWave1")
+      const wave2 = document.getElementById("vialWave2")
+
+      // y position : 80 = vide (bas), 0 = plein (haut), on déborde à -5 pour cacher les vagues
+      const yPos = VIAL_HEIGHT - (percent * (VIAL_HEIGHT + 5))
+      liquid.setAttribute("y", yPos)
+      wave1.setAttribute("transform", `translate(0, ${yPos})`)
+      wave2.setAttribute("transform", `translate(0, ${yPos - 5})`)
+    }
+
     function startCooldown() {
       onCooldown = true
       const btn = document.getElementById("clickBtn")
-      const fill = document.getElementById("liquidFill")
+      const label = document.getElementById("vialLabel")
 
       btn.classList.add("on-cooldown")
+      label.textContent = "[ Recharging... ]"
 
-      fill.style.transition = "height 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
-      fill.style.height = "0%"
+      // Vide la fiole rapidement
+      const drainStart = performance.now()
+      const drainDuration = 400
 
-      setTimeout(() => {
-        fill.style.transition = `height ${COOLDOWN}ms linear`
-        fill.style.height = "110%"
-      }, 450)
+      function drainAnimate(now) {
+        const elapsed = now - drainStart
+        const progress = Math.min(elapsed / drainDuration, 1)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        setLiquidLevel(1 - eased)
+        if (progress < 1) requestAnimationFrame(drainAnimate)
+        else startRefill()
+      }
 
-      setTimeout(() => {
-        onCooldown = false
-        btn.classList.remove("on-cooldown")
-      }, 450 + COOLDOWN)
+      requestAnimationFrame(drainAnimate)
+    }
+
+    function startRefill() {
+      const refillStart = performance.now()
+
+      function refillAnimate(now) {
+        const elapsed = now - refillStart
+        const progress = Math.min(elapsed / COOLDOWN, 1)
+        setLiquidLevel(progress * 1.05) // légère surcharge pour cacher vagues
+        if (progress < 1) {
+          requestAnimationFrame(refillAnimate)
+        } else {
+          onCooldown = false
+          const btn = document.getElementById("clickBtn")
+          const label = document.getElementById("vialLabel")
+          btn.classList.remove("on-cooldown")
+          label.textContent = "[ Execute ]"
+          setLiquidLevel(1.05)
+        }
+      }
+
+      requestAnimationFrame(refillAnimate)
     }
 
     async function loadLeaderboard() {
@@ -533,10 +601,7 @@
       document.getElementById("profileName").textContent = username
       document.getElementById("headerUsername").textContent = username
       updateDisplay()
-
-      const fill = document.getElementById("liquidFill")
-      fill.style.transition = "none"
-      fill.style.height = "110%"
+      setLiquidLevel(1.05)
     }
 
     async function saveScore() {
