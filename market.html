@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gacha Clicker — Market</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #080a0c;
+      --surface: #0d1117;
+      --surface2: #131c26;
+      --border: #243447;
+      --border-bright: #3a5a7a;
+      --accent: #4a9eff;
+      --accent-dim: #1a3a5c;
+      --text: #c8d8e8;
+      --text-dim: #6a8aaa;
+      --text-bright: #e8f4ff;
+      --gold: #c8a84b;
+      --silver: #a8b8c8;
+      --green: #4aefaa;
+      --pink: #ef4aaa;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(74, 158, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74, 158, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: #0a0f15;
+      border-bottom: 1px solid var(--border-bright);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 200;
+      gap: 16px;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.4;
+    }
+
+    .back-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      color: var(--text-dim);
+      padding: 5px 12px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+
+    .back-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+    .header-logo {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
+      color: var(--accent);
+      letter-spacing: 5px;
+      text-transform: uppercase;
+    }
+
+    .header-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border) 0%, transparent 100%); }
+
+    .header-user {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text);
+      letter-spacing: 2px;
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      padding: 4px 12px;
+    }
+
+    /* RESOURCES BAR */
+    .resources-bar {
+      position: fixed;
+      top: 52px; left: 0; right: 0;
+      height: 40px;
+      background: #0a0f15;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 32px;
+      z-index: 190;
+    }
+
+    .resource-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+    }
+
+    .resource-icon { font-size: 13px; }
+    .resource-label { color: var(--text-dim); letter-spacing: 1px; }
+    .resource-value { color: var(--text-bright); }
+    .resource-value.silver { color: var(--silver); }
+    .resource-value.essence { color: var(--green); }
+    .resource-value.crystals { color: var(--pink); }
+
+    /* LAYOUT */
+    .layout {
+      position: relative;
+      z-index: 1;
+      padding: 112px 40px 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .page-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border-bright);
+    }
+
+    .tab {
+      padding: 10px 24px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+
+    /* MARKET ITEMS */
+    .market-item {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      padding: 20px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .market-item::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0.5;
+    }
+
+    .market-item:hover { border-color: var(--accent); }
+
+    .item-icon { font-size: 28px; margin-bottom: 10px; }
+
+    .item-name {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .item-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .item-price {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: var(--silver);
+      margin-bottom: 12px;
+    }
+
+    .item-price span { color: var(--text-bright); }
+
+    .buy-btn {
+      width: 100%;
+      padding: 9px;
+      background: var(--accent-dim);
+      border: 1px solid var(--border-bright);
+      color: var(--accent);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+
+    .buy-btn:hover { background: rgba(74, 158, 255, 0.2); border-color: var(--accent); }
+    .buy-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* Machine items */
+    .machine-tier {
+      position: absolute;
+      top: 10px; right: 10px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      background: var(--surface2);
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+    }
+
+    .machine-stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .stat span { color: var(--green); }
+    .stat span.cost { color: #ef9a4a; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      color: var(--text-bright);
+      padding: 10px 20px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      z-index: 9999;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: #4aefaa; color: #4aefaa; }
+    .toast.error { border-color: #ef4a4a; color: #ef4a4a; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <a class="back-btn" href="game.html">← Back</a>
+    <span class="header-logo">Market</span>
+    <div class="header-line"></div>
+    <span class="header-user" id="headerUsername">—</span>
+  </div>
+
+  <div class="resources-bar">
+    <div class="resource-item">
+      <span class="resource-icon">⚗️</span>
+      <span class="resource-label">Elixir</span>
+      <span class="resource-value" id="resElixir">0</span>
+    </div>
+    <div class="resource-item">
+      <span class="resource-icon">🪙</span>
+      <span class="resource-label">Silver</span>
+      <span class="resource-value silver" id="resSilver">0</span>
+    </div>
+    <div class="resource-item">
+      <span class="resource-icon">🧪</span>
+      <span class="resource-label">Essence</span>
+      <span class="resource-value essence" id="resEssence">0</span>
+    </div>
+    <div class="resource-item">
+      <span class="resource-icon">💎</span>
+      <span class="resource-label">Crystals</span>
+      <span class="resource-value crystals" id="resCrystals">0</span>
+    </div>
+    <div class="resource-item">
+      <span class="resource-icon">🔩</span>
+      <span class="resource-label">Fragments</span>
+      <span class="resource-value" id="resFragments">0</span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="page-title">// Market — Trade & Acquire Resources</div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('resources')">Resources</div>
+      <div class="tab" onclick="switchTab('industrial')">Industrial</div>
+    </div>
+
+    <!-- RESOURCES TAB -->
+    <div class="tab-content active" id="tab-resources">
+
+      <div class="market-item">
+        <div class="item-icon">🧪</div>
+        <div class="item-name">Essence x10</div>
+        <div class="item-desc">Fuel for your machines. Small stock for early production.</div>
+        <div class="item-price">Price: <span>5 Silver</span></div>
+        <button class="buy-btn" onclick="buy('essence', 10, 5)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="item-icon">🧪</div>
+        <div class="item-name">Essence x50</div>
+        <div class="item-desc">A medium stock of Essence. Better value per unit.</div>
+        <div class="item-price">Price: <span>20 Silver</span></div>
+        <button class="buy-btn" onclick="buy('essence', 50, 20)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="item-icon">🧪</div>
+        <div class="item-name">Essence x200</div>
+        <div class="item-desc">Large Essence reserve. Best value for serious operators.</div>
+        <div class="item-price">Price: <span>70 Silver</span></div>
+        <button class="buy-btn" onclick="buy('essence', 200, 70)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="item-icon">💎</div>
+        <div class="item-name">Crystal x1</div>
+        <div class="item-desc">Rare crystal for premium Gacha pulls. Extremely valuable.</div>
+        <div class="item-price">Price: <span>50 Silver</span></div>
+        <button class="buy-btn" onclick="buy('crystals', 1, 50)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="item-icon">💎</div>
+        <div class="item-name">Crystal x5</div>
+        <div class="item-desc">A pack of crystals. Significant investment for dedicated collectors.</div>
+        <div class="item-price">Price: <span>240 Silver</span></div>
+        <button class="buy-btn" onclick="buy('crystals', 5, 240)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="item-icon">🔩</div>
+        <div class="item-name">Fragments x5</div>
+        <div class="item-desc">Used to upgrade cards. Normally obtained from duplicates.</div>
+        <div class="item-price">Price: <span>15 Silver</span></div>
+        <button class="buy-btn" onclick="buy('fragments', 5, 15)">Purchase</button>
+      </div>
+
+    </div>
+
+    <!-- INDUSTRIAL TAB -->
+    <div class="tab-content" id="tab-industrial">
+
+      <div class="market-item">
+        <div class="machine-tier">TIER I</div>
+        <div class="item-icon">⚙️</div>
+        <div class="item-name">Machine I</div>
+        <div class="item-desc">Basic Elixir generator. Requires constant Essence supply to operate.</div>
+        <div class="machine-stats">
+          <div class="stat">Output: <span>+10 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">2 Essence/min</span></div>
+        </div>
+        <div class="item-price">Price: <span>50 Silver</span></div>
+        <button class="buy-btn" onclick="buyMachine(1, 50)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="machine-tier">TIER II</div>
+        <div class="item-icon">🔧</div>
+        <div class="item-name">Machine II</div>
+        <div class="item-desc">Advanced generator with significantly higher output.</div>
+        <div class="machine-stats">
+          <div class="stat">Output: <span>+50 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">8 Essence/min</span></div>
+        </div>
+        <div class="item-price">Price: <span>200 Silver</span></div>
+        <button class="buy-btn" onclick="buyMachine(2, 200)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="machine-tier">TIER III</div>
+        <div class="item-icon">🏭</div>
+        <div class="item-name">Machine III</div>
+        <div class="item-desc">Industrial-grade Elixir synthesis. Requires serious Essence investment.</div>
+        <div class="machine-stats">
+          <div class="stat">Output: <span>+200 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">30 Essence/min</span></div>
+        </div>
+        <div class="item-price">Price: <span>800 Silver</span></div>
+        <button class="buy-btn" onclick="buyMachine(3, 800)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="machine-tier">TIER IV</div>
+        <div class="item-icon">🚀</div>
+        <div class="item-name">Machine IV</div>
+        <div class="item-desc">Maximum efficiency Elixir reactor. End-game automation.</div>
+        <div class="machine-stats">
+          <div class="stat">Output: <span>+800 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">100 Essence/min</span></div>
+        </div>
+        <div class="item-price">Price: <span>3,000 Silver</span></div>
+        <button class="buy-btn" onclick="buyMachine(4, 3000)">Purchase</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const sb = supabase.createClient(
+      'https://zbyvhlhnjefpodjdnfdy.supabase.co',
+      'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
+    )
+
+    let silver = 0
+    let essence = 0
+    let crystals = 0
+    let fragments = 0
+    let elixir = 0
+    let userId = null
+    let saveTimeout = null
+
+    function fmt(n) { return Math.floor(n).toLocaleString() }
+
+    function updateDisplay() {
+      document.getElementById("resElixir").textContent = fmt(elixir)
+      document.getElementById("resSilver").textContent = silver.toFixed(2)
+      document.getElementById("resEssence").textContent = fmt(essence)
+      document.getElementById("resCrystals").textContent = fmt(crystals)
+      document.getElementById("resFragments").textContent = fmt(fragments)
+    }
+
+    function showToast(msg, type = '') {
+      const t = document.getElementById("toast")
+      t.textContent = msg
+      t.className = `toast ${type} show`
+      setTimeout(() => t.className = `toast ${type}`, 2500)
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', ['resources', 'industrial'][i] === tab)
+      })
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'))
+      document.getElementById(`tab-${tab}`).classList.add('active')
+    }
+
+    async function saveData() {
+      if (!userId) return
+      await sb.from("player_scores").update({
+        silver, essence, crystals, fragments,
+        updated_at: new Date()
+      }).eq("user_id", userId)
+    }
+
+    function buy(resource, amount, cost) {
+      if (silver < cost) { showToast("Not enough Silver", "error"); return }
+      silver -= cost
+      if (resource === 'essence') essence += amount
+      if (resource === 'crystals') crystals += amount
+      if (resource === 'fragments') fragments += amount
+      updateDisplay()
+      showToast(`Purchased ${amount} ${resource}!`, "success")
+      if (saveTimeout) clearTimeout(saveTimeout)
+      saveTimeout = setTimeout(saveData, 3000)
+    }
+
+    async function buyMachine(tier, cost) {
+      if (silver < cost) { showToast("Not enough Silver", "error"); return }
+      silver -= cost
+      updateDisplay()
+
+      // Insert or update machine
+      const { data: existing } = await sb.from("player_machines")
+        .select("*").eq("user_id", userId).single()
+
+      if (!existing) {
+        const row = { user_id: userId, machine1: 0, machine2: 0, machine3: 0, machine4: 0 }
+        row[`machine${tier}`] = 1
+        await sb.from("player_machines").insert(row)
+      } else {
+        await sb.from("player_machines").update({
+          [`machine${tier}`]: existing[`machine${tier}`] + 1
+        }).eq("user_id", userId)
+      }
+
+      await saveData()
+      showToast(`Machine ${tier} purchased!`, "success")
+    }
+
+    async function load() {
+      const { data: { user } } = await sb.auth.getUser()
+      if (!user) { window.location.href = "index.html"; return }
+      userId = user.id
+
+      const { data } = await sb.from("player_scores")
+        .select("username, elixir, silver, essence, crystals, fragments")
+        .eq("user_id", userId).single()
+
+      if (data) {
+        elixir = data.elixir || 0
+        silver = data.silver || 0
+        essence = data.essence || 0
+        crystals = data.crystals || 0
+        fragments = data.fragments || 0
+        document.getElementById("headerUsername").textContent = data.username || 'Player'
+      }
+
+      updateDisplay()
+    }
+
+    load()
+  </script>
+</body>
+</html>
