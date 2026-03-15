@@ -88,7 +88,6 @@
       <span>Clique.</span>
       <div id="liquidFill"></div>
     </button>
-    <button id="logout" class="w-full py-3 bg-red-600 rounded hover:bg-red-700">Déconnexion</button>
   </div>
 
   <script>
@@ -120,17 +119,14 @@
 
       btn.classList.add("on-cooldown")
 
-      // Étape 1 : vidange fluide en 0.4s
       fill.style.transition = "height 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
       fill.style.height = "0%"
 
-      // Étape 2 : remplissage progressif
       setTimeout(() => {
         fill.style.transition = `height ${COOLDOWN}ms linear`
         fill.style.height = "110%"
       }, 450)
 
-      // Étape 3 : déverrouille le bouton
       setTimeout(() => {
         onCooldown = false
         btn.classList.remove("on-cooldown")
@@ -172,7 +168,6 @@
       document.getElementById("profileName").textContent = username
       updateDisplay()
 
-      // Jauge pleine dès le chargement sans animation
       const fill = document.getElementById("liquidFill")
       fill.style.transition = "none"
       fill.style.height = "110%"
@@ -206,14 +201,12 @@
       document.getElementById("profileMenu").classList.toggle("hidden")
     }
 
-    async function logout() {
+    document.getElementById("logoutMenu").onclick = async function () {
       await saveScore()
       await sb.auth.signOut()
       location.href = "index.html"
     }
 
-    document.getElementById("logout").onclick = logout
-    document.getElementById("logoutMenu").onclick = logout
     window.addEventListener("beforeunload", saveScore)
 
     load()
