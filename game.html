@@ -11,7 +11,6 @@
       --bg: #080a0c;
       --surface: #0d1117;
       --surface2: #131c26;
-      --surface3: #1a2535;
       --border: #243447;
       --border-bright: #3a5a7a;
       --accent: #4a9eff;
@@ -22,6 +21,7 @@
       --text-dim: #6a8aaa;
       --text-bright: #e8f4ff;
       --gold: #c8a84b;
+      --silver: #a8b8c8;
       --sidebar-width: 240px;
     }
 
@@ -47,7 +47,6 @@
       z-index: 0;
     }
 
-    /* HEADER */
     .header {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -91,8 +90,7 @@
       clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
     }
 
-    .header-menu-btn:hover,
-    .header-menu-btn.active {
+    .header-menu-btn:hover, .header-menu-btn.active {
       border-color: var(--accent);
       color: var(--accent);
       background: var(--accent-dim);
@@ -115,12 +113,39 @@
       padding: 4px 12px;
     }
 
+    /* RESOURCES BAR */
+    .resources-bar {
+      position: fixed;
+      top: 52px; left: 0; right: 0;
+      height: 40px;
+      background: #0a0f15;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 32px;
+      z-index: 190;
+    }
+
+    .resource-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+    }
+
+    .resource-icon { font-size: 13px; }
+    .resource-label { color: var(--text-dim); letter-spacing: 1px; }
+    .resource-value { color: var(--text-bright); }
+    .resource-value.silver { color: var(--silver); }
+    .resource-value.essence { color: #4aefaa; }
+    .resource-value.crystals { color: #ef4aaa; }
+
     /* SIDEBAR */
     .sidebar {
       position: fixed;
-      top: 52px;
-      left: 0;
-      bottom: 0;
+      top: 92px; left: 0; bottom: 0;
       width: var(--sidebar-width);
       background: #0a0f15;
       border-right: 1px solid var(--border-bright);
@@ -129,30 +154,23 @@
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-y: auto;
     }
 
     .sidebar::before {
       content: '';
       position: absolute;
       top: 0; right: 0;
-      width: 1px;
-      height: 100%;
+      width: 1px; height: 100%;
       background: linear-gradient(180deg, var(--accent), transparent 60%);
       opacity: 0.4;
     }
 
-    .sidebar.open {
-      transform: translateX(0);
-    }
+    .sidebar.open { transform: translateX(0); }
 
     .sidebar-section {
       padding: 16px 0;
       border-bottom: 1px solid var(--border);
-    }
-
-    .sidebar-section:last-child {
-      border-bottom: none;
     }
 
     .sidebar-section-title {
@@ -177,6 +195,7 @@
       letter-spacing: 1px;
       color: var(--text-dim);
       text-transform: uppercase;
+      text-decoration: none;
     }
 
     .sidebar-item:hover {
@@ -194,37 +213,11 @@
     .sidebar-item.disabled {
       opacity: 0.3;
       cursor: not-allowed;
+      pointer-events: none;
     }
 
-    .sidebar-item.disabled:hover {
-      background: transparent;
-      color: var(--text-dim);
-      border-left-color: transparent;
-    }
-
-    .sidebar-icon {
-      font-size: 14px;
-      width: 18px;
-      text-align: center;
-    }
-
-    .sidebar-badge {
-      margin-left: auto;
-      background: var(--accent-dim);
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      font-size: 9px;
-      padding: 1px 5px;
-      font-family: 'Share Tech Mono', monospace;
-    }
-
-    .soon-tag {
-      margin-left: auto;
-      font-size: 8px;
-      color: var(--text-dim);
-      letter-spacing: 1px;
-      opacity: 0.6;
-    }
+    .sidebar-icon { font-size: 14px; width: 18px; text-align: center; }
+    .soon-tag { margin-left: auto; font-size: 8px; color: var(--text-dim); letter-spacing: 1px; opacity: 0.6; }
 
     /* LAYOUT */
     .layout {
@@ -236,19 +229,16 @@
       align-items: center;
       justify-content: center;
       padding: 24px;
+      margin-top: 92px;
       transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      margin-top: 52px;
     }
 
-    .layout.sidebar-open {
-      padding-left: calc(var(--sidebar-width) + 24px);
-    }
+    .layout.sidebar-open { padding-left: calc(var(--sidebar-width) + 24px); }
 
     /* TOP RIGHT */
     .top-right {
       position: fixed;
-      top: 64px;
-      right: 20px;
+      top: 104px; right: 20px;
       z-index: 100;
       display: flex;
       flex-direction: column;
@@ -280,15 +270,9 @@
       opacity: 0.6;
     }
 
-    .nav-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-dim);
-    }
-
+    .nav-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
     .nav-btn:hover::before { opacity: 1; }
 
-    /* PANELS */
     .panel {
       background: #0a0f15;
       border: 1px solid var(--border-bright);
@@ -333,7 +317,6 @@
     }
 
     .panel-value.gold { color: var(--gold); }
-
     .hidden { display: none !important; }
 
     .logout-btn {
@@ -351,11 +334,7 @@
       transition: all 0.2s;
     }
 
-    .logout-btn:hover {
-      border-color: #cc3333;
-      color: #ff6666;
-      background: rgba(204, 51, 51, 0.15);
-    }
+    .logout-btn:hover { border-color: #cc3333; color: #ff6666; background: rgba(204, 51, 51, 0.15); }
 
     /* MAIN CARD */
     .main-card {
@@ -381,8 +360,7 @@
     .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
     .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 
-    /* SCORE */
-    .score-block { margin-bottom: 40px; }
+    .score-block { margin-bottom: 32px; }
 
     .score-label {
       font-family: 'Share Tech Mono', monospace;
@@ -412,6 +390,70 @@
       font-size: 11px;
       color: var(--gold);
       letter-spacing: 2px;
+    }
+
+    /* SELL BUTTON */
+    .sell-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 16px;
+      background: rgba(200, 168, 75, 0.08);
+      border: 1px solid rgba(200, 168, 75, 0.4);
+      color: var(--gold);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    }
+
+    .sell-btn:hover {
+      background: rgba(200, 168, 75, 0.15);
+      border-color: var(--gold);
+    }
+
+    .sell-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      align-items: center;
+    }
+
+    .sell-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      color: var(--text-bright);
+      padding: 8px 12px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .sell-input:focus { border-color: var(--gold); }
+
+    .sell-confirm-btn {
+      padding: 8px 16px;
+      background: rgba(200, 168, 75, 0.15);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sell-confirm-btn:hover { background: rgba(200, 168, 75, 0.3); }
+
+    .sell-preview {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 6px;
+      letter-spacing: 1px;
     }
 
     /* VIAL */
@@ -444,21 +486,12 @@
     }
 
     .vial-wrapper.on-cooldown { cursor: not-allowed; }
+    .vial-wrapper.on-cooldown .vial-label { color: var(--text-dim); border-color: var(--border); }
 
-    .vial-wrapper.on-cooldown .vial-label {
-      color: var(--text-dim);
-      border-color: var(--border);
-    }
-
-    .vial-container {
-      position: relative;
-      width: 100%;
-      height: 80px;
-    }
+    .vial-container { position: relative; width: 100%; height: 80px; }
 
     .vial-svg {
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.35));
       transition: filter 0.3s;
     }
@@ -467,15 +500,8 @@
       filter: drop-shadow(0 0 18px rgba(157, 95, 255, 0.55));
     }
 
-    #vialWave1, #vialWave2 {
-      animation: vialWave 4s linear infinite;
-    }
-
-    #vialWave2 {
-      animation-duration: 6s;
-      animation-direction: reverse;
-      opacity: 0.6;
-    }
+    #vialWave1, #vialWave2 { animation: vialWave 4s linear infinite; }
+    #vialWave2 { animation-duration: 6s; animation-direction: reverse; opacity: 0.6; }
 
     @keyframes vialWave {
       0%   { transform: translateX(0); }
@@ -483,13 +509,8 @@
     }
 
     /* LEADERBOARD */
-    #leaderboardPanel {
-      max-height: 380px;
-      overflow-y: auto;
-    }
-
+    #leaderboardPanel { max-height: 380px; overflow-y: auto; }
     #leaderboardPanel::-webkit-scrollbar { width: 3px; }
-    #leaderboardPanel::-webkit-scrollbar-track { background: var(--surface); }
     #leaderboardPanel::-webkit-scrollbar-thumb { background: var(--accent-dim); }
 
     .lb-row {
@@ -507,16 +528,66 @@
     .lb-name.me { color: var(--accent); }
     .lb-score { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--gold); }
     .lb-row.me-row { background: rgba(74, 158, 255, 0.06); }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      color: var(--text-bright);
+      padding: 10px 20px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      z-index: 9999;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: #4aefaa; color: #4aefaa; }
+    .toast.error { border-color: #ef4a4a; color: #ef4a4a; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
   <div class="header">
     <span class="header-logo">Gacha Clicker</span>
     <button class="header-menu-btn" id="sidebarBtn">≡ Menu</button>
     <div class="header-line"></div>
     <span class="header-user" id="headerUsername">—</span>
+  </div>
+
+  <!-- RESOURCES BAR -->
+  <div class="resources-bar">
+    <div class="resource-item">
+      <span class="resource-icon">⚗️</span>
+      <span class="resource-label">Elixir</span>
+      <span class="resource-value" id="resElixir">0</span>
+    </div>
+    <div class="resource-item">
+      <span class="resource-icon">🪙</span>
+      <span class="resource-label">Silver</span>
+      <span class="resource-value silver" id="resSilver">0</span>
+    </div>
+    <div class="resource-item">
+      <span class="resource-icon">🧪</span>
+      <span class="resource-label">Essence</span>
+      <span class="resource-value essence" id="resEssence">0</span>
+    </div>
+    <div class="resource-item">
+      <span class="resource-icon">💎</span>
+      <span class="resource-label">Crystals</span>
+      <span class="resource-value crystals" id="resCrystals">0</span>
+    </div>
+    <div class="resource-item">
+      <span class="resource-icon">🔩</span>
+      <span class="resource-label">Fragments</span>
+      <span class="resource-value" id="resFragments">0</span>
+    </div>
   </div>
 
   <!-- SIDEBAR -->
@@ -527,7 +598,16 @@
         <span class="sidebar-icon">⚗️</span> Synthesizer
       </div>
     </div>
-
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">// Economy</div>
+      <a class="sidebar-item" href="market.html">
+        <span class="sidebar-icon">🏪</span> Market
+      </a>
+      <div class="sidebar-item disabled">
+        <span class="sidebar-icon">🏭</span> Machines
+        <span class="soon-tag">Soon</span>
+      </div>
+    </div>
     <div class="sidebar-section">
       <div class="sidebar-section-title">// Collection</div>
       <div class="sidebar-item disabled">
@@ -538,12 +618,7 @@
         <span class="sidebar-icon">✨</span> Gacha
         <span class="soon-tag">Soon</span>
       </div>
-      <div class="sidebar-item disabled">
-        <span class="sidebar-icon">📦</span> Boosters
-        <span class="soon-tag">Soon</span>
-      </div>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-section-title">// Progression</div>
       <div class="sidebar-item disabled">
@@ -551,19 +626,7 @@
         <span class="soon-tag">Soon</span>
       </div>
       <div class="sidebar-item disabled">
-        <span class="sidebar-icon">⚡</span> Upgrades
-        <span class="soon-tag">Soon</span>
-      </div>
-      <div class="sidebar-item disabled">
         <span class="sidebar-icon">🏆</span> Achievements
-        <span class="soon-tag">Soon</span>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-section-title">// Social</div>
-      <div class="sidebar-item disabled">
-        <span class="sidebar-icon">👥</span> Leaderboard
         <span class="soon-tag">Soon</span>
       </div>
     </div>
@@ -576,7 +639,7 @@
       <div class="panel-title">// Player Data</div>
       <div class="panel-label">Username</div>
       <div class="panel-value" id="profileName">—</div>
-      <div class="panel-label">Current Score</div>
+      <div class="panel-label">Elixir</div>
       <div class="panel-value" id="profileScore">0</div>
       <div class="panel-label">All-Time Total</div>
       <div class="panel-value gold" id="profileTotal">0</div>
@@ -601,7 +664,7 @@
       <div class="corner corner-br"></div>
 
       <div class="score-block">
-        <div class="score-label">// Current Score</div>
+        <div class="score-label">// Elixir</div>
         <div class="score-value" id="score">0</div>
         <div class="score-divider"></div>
         <div class="score-total">ALL-TIME : <span id="totalEver">0</span></div>
@@ -624,7 +687,6 @@
                 <stop offset="100%" stop-color="rgba(0,0,0,0.25)"/>
               </linearGradient>
             </defs>
-
             <g clip-path="url(#vialClip)">
               <rect id="vialLiquid" x="0" y="80" width="400" height="80" fill="url(#liquidGrad)"/>
               <g id="vialWave1">
@@ -636,7 +698,6 @@
                 <ellipse cx="300" cy="0" rx="200" ry="8" fill="#9d5fff"/>
               </g>
             </g>
-
             <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"
               fill="none" stroke="#3a5a7a" stroke-width="1.5"/>
             <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"
@@ -651,8 +712,22 @@
         </div>
         <div class="vial-label" id="vialLabel">Execute</div>
       </div>
+
+      <!-- SELL SECTION -->
+      <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px;">
+        <div class="score-label" style="margin-bottom: 10px;">// Sell Elixir</div>
+        <div class="sell-input-row">
+          <input class="sell-input" type="number" id="sellAmount" placeholder="Amount..." min="1000" step="1000"/>
+          <button class="sell-confirm-btn" id="sellBtn">Sell</button>
+        </div>
+        <div class="sell-preview" id="sellPreview">1,000 Elixir = 1 Silver</div>
+      </div>
+
     </div>
   </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
 
   <script>
     const sb = supabase.createClient(
@@ -660,20 +735,40 @@
       'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
     )
 
-    let clicks = 0
+    const ELIXIR_TO_SILVER = 1000 // 1000 Elixir = 1 Silver
+    const CRYSTAL_CHANCE = 0.001  // 0.1% par clic
+    const COOLDOWN = 3000
+
+    let elixir = 0
     let totalEver = 0
+    let silver = 0
+    let essence = 0
+    let crystals = 0
+    let fragments = 0
     let username = 'Player'
     let userId = null
     let saveTimeout = null
     let onCooldown = false
 
-    const COOLDOWN = 3000
+    function fmt(n) { return Math.floor(n).toLocaleString() }
 
     function updateDisplay() {
-      document.getElementById("score").textContent = clicks.toLocaleString()
-      document.getElementById("totalEver").textContent = totalEver.toLocaleString()
-      document.getElementById("profileScore").textContent = clicks.toLocaleString()
-      document.getElementById("profileTotal").textContent = totalEver.toLocaleString()
+      document.getElementById("score").textContent = fmt(elixir)
+      document.getElementById("totalEver").textContent = fmt(totalEver)
+      document.getElementById("profileScore").textContent = fmt(elixir)
+      document.getElementById("profileTotal").textContent = fmt(totalEver)
+      document.getElementById("resElixir").textContent = fmt(elixir)
+      document.getElementById("resSilver").textContent = silver.toFixed(2)
+      document.getElementById("resEssence").textContent = fmt(essence)
+      document.getElementById("resCrystals").textContent = fmt(crystals)
+      document.getElementById("resFragments").textContent = fmt(fragments)
+    }
+
+    function showToast(msg, type = '') {
+      const t = document.getElementById("toast")
+      t.textContent = msg
+      t.className = `toast ${type} show`
+      setTimeout(() => t.className = `toast ${type}`, 2500)
     }
 
     function setLiquidLevel(percent) {
@@ -688,17 +783,14 @@
 
     function startCooldown() {
       onCooldown = true
-      const btn = document.getElementById("clickBtn")
-      const label = document.getElementById("vialLabel")
-      btn.classList.add("on-cooldown")
-      label.textContent = "Recharging..."
+      document.getElementById("clickBtn").classList.add("on-cooldown")
+      document.getElementById("vialLabel").textContent = "Recharging..."
 
       const drainStart = performance.now()
 
       function drainAnimate(now) {
         const progress = Math.min((now - drainStart) / 400, 1)
-        const eased = 1 - Math.pow(1 - progress, 3)
-        setLiquidLevel(1 - eased)
+        setLiquidLevel(1 - (1 - Math.pow(1 - progress, 3)))
         if (progress < 1) requestAnimationFrame(drainAnimate)
         else startRefill()
       }
@@ -725,33 +817,33 @@
       requestAnimationFrame(refillAnimate)
     }
 
+    async function saveScore() {
+      if (!userId) return
+      await sb.from("player_scores").update({
+        clicks: totalEver,
+        total_clicks_ever: totalEver,
+        elixir,
+        silver,
+        essence,
+        crystals,
+        fragments,
+        updated_at: new Date()
+      }).eq("user_id", userId)
+    }
+
     async function loadLeaderboard() {
       const panel = document.getElementById("leaderboardPanel")
       panel.innerHTML = '<p style="font-family: \'Share Tech Mono\', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 12px 0;">Loading...</p>'
-
-      const { data } = await sb
-        .from("player_scores")
-        .select("username, clicks")
-        .order("clicks", { ascending: false })
-        .limit(50)
-
-      if (!data || data.length === 0) {
-        panel.innerHTML = '<p style="font-family: \'Share Tech Mono\', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 12px 0;">No data</p>'
-        return
-      }
-
+      const { data } = await sb.from("player_scores").select("username, total_clicks_ever").order("total_clicks_ever", { ascending: false }).limit(50)
+      if (!data || data.length === 0) { panel.innerHTML = '<p style="font-family: \'Share Tech Mono\', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 12px 0;">No data</p>'; return }
       const medals = ["🥇", "🥈", "🥉"]
-      panel.innerHTML = data.map((joueur, index) => {
-        const isMe = joueur.username === username
-        const rank = medals[index] || `#${index + 1}`
-        return `
-          <div class="lb-row ${isMe ? 'me-row' : ''}">
-            <span class="lb-rank">${rank}</span>
-            <span class="lb-name ${isMe ? 'me' : ''}">${joueur.username}</span>
-            <span class="lb-score">${joueur.clicks.toLocaleString()}</span>
-          </div>
-        `
-      }).join("")
+      panel.innerHTML = data.map((j, i) => `
+        <div class="lb-row ${j.username === username ? 'me-row' : ''}">
+          <span class="lb-rank">${medals[i] || '#' + (i + 1)}</span>
+          <span class="lb-name ${j.username === username ? 'me' : ''}">${j.username}</span>
+          <span class="lb-score">${fmt(j.total_clicks_ever)}</span>
+        </div>
+      `).join("")
     }
 
     async function load() {
@@ -759,28 +851,23 @@
       if (!user) { window.location.href = "index.html"; return }
       userId = user.id
 
-      const { data } = await sb
-        .from("player_scores")
-        .select("clicks, total_clicks_ever, username")
-        .eq("user_id", userId)
-        .single()
+      const { data } = await sb.from("player_scores")
+        .select("clicks, total_clicks_ever, username, elixir, silver, essence, crystals, fragments")
+        .eq("user_id", userId).single()
 
       if (!data) {
         const urlParams = new URLSearchParams(window.location.search)
         const pseudoFromUrl = urlParams.get('pseudo')
         const defaultName = pseudoFromUrl || user.email.split("@")[0]
-        await sb.from("player_scores").insert({
-          user_id: userId,
-          clicks: 0,
-          total_clicks_ever: 0,
-          username: defaultName
-        })
-        clicks = 0
-        totalEver = 0
+        await sb.from("player_scores").insert({ user_id: userId, clicks: 0, total_clicks_ever: 0, username: defaultName, elixir: 0, silver: 0, essence: 0, crystals: 0, fragments: 0 })
         username = defaultName
       } else {
-        clicks = data.clicks || 0
+        elixir = data.elixir || 0
         totalEver = data.total_clicks_ever || 0
+        silver = data.silver || 0
+        essence = data.essence || 0
+        crystals = data.crystals || 0
+        fragments = data.fragments || 0
         username = data.username || 'Player'
       }
 
@@ -790,32 +877,42 @@
       setLiquidLevel(1.05)
     }
 
-    async function saveScore() {
-      if (!userId) return
-      await sb
-        .from("player_scores")
-        .update({ clicks, total_clicks_ever: totalEver, updated_at: new Date() })
-        .eq("user_id", userId)
-    }
-
-    // Sidebar toggle
-    document.getElementById("sidebarBtn").onclick = () => {
-      const sidebar = document.getElementById("sidebar")
-      const layout = document.getElementById("layout")
-      const btn = document.getElementById("sidebarBtn")
-      sidebar.classList.toggle("open")
-      layout.classList.toggle("sidebar-open")
-      btn.classList.toggle("active")
-    }
-
+    // CLICK
     document.getElementById("clickBtn").onclick = function () {
       if (onCooldown) return
-      clicks++
+      elixir++
       totalEver++
+
+      // Chance cristaux
+      if (Math.random() < CRYSTAL_CHANCE) {
+        crystals++
+        showToast("✨ Crystal obtained!", "success")
+      }
+
       updateDisplay()
       startCooldown()
       if (saveTimeout) clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(saveScore, 2000)
+      saveTimeout = setTimeout(saveScore, 5000)
+    }
+
+    // SELL
+    document.getElementById("sellAmount").oninput = function () {
+      const amount = parseInt(this.value) || 0
+      const earned = (amount / ELIXIR_TO_SILVER).toFixed(4)
+      document.getElementById("sellPreview").textContent = `${fmt(amount)} Elixir = ${earned} Silver`
+    }
+
+    document.getElementById("sellBtn").onclick = function () {
+      const amount = parseInt(document.getElementById("sellAmount").value) || 0
+      if (amount < 1000) { showToast("Minimum 1,000 Elixir", "error"); return }
+      if (amount > elixir) { showToast("Not enough Elixir", "error"); return }
+      const earned = amount / ELIXIR_TO_SILVER
+      elixir -= amount
+      silver += earned
+      updateDisplay()
+      showToast(`Sold ${fmt(amount)} Elixir for ${earned.toFixed(4)} Silver`, "success")
+      if (saveTimeout) clearTimeout(saveTimeout)
+      saveTimeout = setTimeout(saveScore, 5000)
     }
 
     document.getElementById("profileBtn").onclick = () => {
@@ -834,6 +931,15 @@
       await saveScore()
       await sb.auth.signOut()
       location.href = "index.html"
+    }
+
+    document.getElementById("sidebarBtn").onclick = () => {
+      const sidebar = document.getElementById("sidebar")
+      const layout = document.getElementById("layout")
+      const btn = document.getElementById("sidebarBtn")
+      sidebar.classList.toggle("open")
+      layout.classList.toggle("sidebar-open")
+      btn.classList.toggle("active")
     }
 
     window.addEventListener("beforeunload", saveScore)
