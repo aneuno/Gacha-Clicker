@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gacha Clicker - Jeu</title>
+  <title>Gacha Clicker - Game</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -83,35 +83,35 @@
 
   <div class="absolute top-6 right-6 flex flex-col items-end gap-2">
 
-    <!-- Bouton Profil -->
-    <button id="profileBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">👤 Profil</button>
+    <!-- Profile Button -->
+    <button id="profileBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">👤 Profile</button>
     <div id="profileMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg text-white w-56">
       <p class="text-lg font-bold mb-2">👤 <span id="profileName">...</span></p>
       <hr class="border-gray-600 mb-2">
-      <p class="text-sm text-gray-400">Score actuel</p>
-      <p class="text-xl font-bold mb-2"><span id="profileScore">0</span> clics</p>
-      <p class="text-sm text-gray-400">Total depuis le début</p>
-      <p class="text-xl font-bold text-yellow-400 mb-4"><span id="profileTotal">0</span> clics</p>
-      <button id="logoutMenu" class="w-full py-2 bg-red-600 rounded hover:bg-red-700">Déconnexion</button>
+      <p class="text-sm text-gray-400">Current score</p>
+      <p class="text-xl font-bold mb-2"><span id="profileScore">0</span> clicks</p>
+      <p class="text-sm text-gray-400">Total since the beginning</p>
+      <p class="text-xl font-bold text-yellow-400 mb-4"><span id="profileTotal">0</span> clicks</p>
+      <button id="logoutMenu" class="w-full py-2 bg-red-600 rounded hover:bg-red-700">Logout</button>
     </div>
 
-    <!-- Bouton Leaderboard -->
-    <button id="leaderboardBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">🏆 Classement</button>
+    <!-- Leaderboard Button -->
+    <button id="leaderboardBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">🏆 Leaderboard</button>
     <div id="leaderboardMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg text-white w-64">
       <p class="text-lg font-bold mb-3 text-center">🏆 ScoreBoard 🏆</p>
       <div id="leaderboardPanel">
-        <p class="text-gray-400 text-center text-sm">Chargement...</p>
+        <p class="text-gray-400 text-center text-sm">Loading...</p>
       </div>
     </div>
 
   </div>
 
   <div class="max-w-md mx-auto bg-gray-800 p-8 rounded-xl">
-    <p id="welcome" class="text-xl mb-6 text-center">Chargement...</p>
+    <p id="welcome" class="text-xl mb-6 text-center">Loading...</p>
     <div class="text-2xl mb-1">Score : <span id="score">0</span></div>
-    <div class="text-sm text-yellow-400 mb-6">Total all-time : <span id="totalEver">0</span> clics</div>
+    <div class="text-sm text-yellow-400 mb-6">All-time total : <span id="totalEver">0</span> clicks</div>
     <button id="clickBtn" class="w-full py-6 bg-gray-700 rounded-xl text-3xl font-bold mb-6">
-      <span>Clique.</span>
+      <span>Click.</span>
       <div id="liquidFill"></div>
     </button>
   </div>
@@ -124,7 +124,7 @@
 
     let clicks = 0
     let totalEver = 0
-    let username = 'Joueur'
+    let username = 'Player'
     let userId = null
     let saveTimeout = null
     let onCooldown = false
@@ -161,7 +161,7 @@
 
     async function loadLeaderboard() {
       const panel = document.getElementById("leaderboardPanel")
-      panel.innerHTML = '<p class="text-gray-400 text-center text-sm">Chargement...</p>'
+      panel.innerHTML = '<p class="text-gray-400 text-center text-sm">Loading...</p>'
 
       const { data } = await sb
         .from("player_scores")
@@ -170,7 +170,7 @@
         .limit(50)
 
       if (!data || data.length === 0) {
-        panel.innerHTML = '<p class="text-gray-400 text-center text-sm">Aucun joueur</p>'
+        panel.innerHTML = '<p class="text-gray-400 text-center text-sm">No players yet</p>'
         return
       }
 
@@ -218,10 +218,10 @@
       } else {
         clicks = data.clicks || 0
         totalEver = data.total_clicks_ever || 0
-        username = data.username || 'Joueur'
+        username = data.username || 'Player'
       }
 
-      document.getElementById("welcome").textContent = `Salut ${username} !`
+      document.getElementById("welcome").textContent = `Hey ${username}!`
       document.getElementById("profileName").textContent = username
       updateDisplay()
 
