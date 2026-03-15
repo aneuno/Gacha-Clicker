@@ -3,14 +3,286 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gacha Clicker - Game</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Gacha Clicker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    :root {
+      --bg: #080a0c;
+      --surface: #0d1117;
+      --surface2: #111820;
+      --border: #1e2d3d;
+      --border-bright: #2a4a6b;
+      --accent: #4a9eff;
+      --accent-dim: #1a3a5c;
+      --purple: #7c3aed;
+      --purple-bright: #9d5fff;
+      --text: #c8d8e8;
+      --text-dim: #4a6a8a;
+      --text-bright: #e8f4ff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(74, 158, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74, 158, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Corner decorations */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle at top left, rgba(74, 158, 255, 0.04), transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .layout {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 48px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 100;
+    }
+
+    .header-logo {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: var(--accent);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .header-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
+      margin: 0 24px;
+    }
+
+    /* Top right buttons */
+    .top-right {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 6px 14px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+
+    .nav-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* Dropdown panels */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 16px;
+      width: 240px;
+      position: relative;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+
+    .panel-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .panel-value {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      color: var(--text-bright);
+      margin-bottom: 10px;
+    }
+
+    .panel-value.gold {
+      color: #c8a84b;
+    }
+
+    .hidden { display: none !important; }
+
+    /* Logout button */
+    .logout-btn {
+      width: 100%;
+      padding: 8px;
+      background: transparent;
+      border: 1px solid #3a1a1a;
+      color: #8a3a3a;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      border-color: #cc3333;
+      color: #cc3333;
+      background: rgba(204, 51, 51, 0.08);
+    }
+
+    /* Main click area */
+    .main-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      margin-top: 48px;
+    }
+
+    .main-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    /* Corner brackets */
+    .corner {
+      position: absolute;
+      width: 12px; height: 12px;
+    }
+    .corner-tl { top: -1px; left: -1px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+    .corner-tr { top: -1px; right: -1px; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+    .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+    .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+
+    /* Score display */
+    .score-block {
+      margin-bottom: 32px;
+    }
+
+    .score-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .score-value {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 36px;
+      color: var(--text-bright);
+      line-height: 1;
+    }
+
+    .score-total {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: #c8a84b;
+      margin-top: 6px;
+      letter-spacing: 1px;
+    }
+
+    /* Click button */
     #clickBtn {
       position: relative;
       overflow: hidden;
-      z-index: 0;
+      width: 100%;
+      padding: 28px;
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      color: var(--text-bright);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
+    }
+
+    #clickBtn:hover:not(.on-cooldown) {
+      border-color: var(--purple-bright);
+      color: var(--purple-bright);
+    }
+
+    #clickBtn.on-cooldown {
+      cursor: not-allowed;
+      color: var(--text-dim);
+      border-color: var(--border);
     }
 
     #clickBtn span {
@@ -20,11 +292,10 @@
 
     #liquidFill {
       position: absolute;
-      bottom: 0;
-      left: 0;
+      bottom: 0; left: 0;
       width: 100%;
       height: 0%;
-      background: linear-gradient(180deg, #6d28d9, #4c1d95);
+      background: linear-gradient(180deg, #5b21b6, #3b0764);
       z-index: 1;
       will-change: height;
     }
@@ -32,10 +303,8 @@
     #liquidFill::before {
       content: '';
       position: absolute;
-      top: -12px;
-      left: -50%;
-      width: 200%;
-      height: 25px;
+      top: -12px; left: -50%;
+      width: 200%; height: 25px;
       background: #6d28d9;
       border-radius: 45%;
       animation: wave 4s linear infinite;
@@ -44,10 +313,8 @@
     #liquidFill::after {
       content: '';
       position: absolute;
-      top: -8px;
-      left: -50%;
-      width: 200%;
-      height: 20px;
+      top: -8px; left: -50%;
+      width: 200%; height: 20px;
       background: #7c3aed;
       border-radius: 40%;
       animation: wave 6s linear infinite reverse;
@@ -59,58 +326,104 @@
       100% { transform: translateX(-50%) translateZ(0); }
     }
 
-    #clickBtn.on-cooldown {
-      cursor: not-allowed;
-    }
-
+    /* Leaderboard */
     #leaderboardPanel {
-      max-height: 400px;
+      max-height: 380px;
       overflow-y: auto;
     }
 
-    #leaderboardPanel::-webkit-scrollbar {
-      width: 4px;
+    #leaderboardPanel::-webkit-scrollbar { width: 3px; }
+    #leaderboardPanel::-webkit-scrollbar-track { background: var(--surface); }
+    #leaderboardPanel::-webkit-scrollbar-thumb { background: var(--accent-dim); }
+
+    .lb-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
     }
 
-    #leaderboardPanel::-webkit-scrollbar-thumb {
-      background: #6d28d9;
-      border-radius: 2px;
+    .lb-row:last-child { border-bottom: none; }
+
+    .lb-rank {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      width: 28px;
+    }
+
+    .lb-name {
+      flex: 1;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .lb-name.me { color: var(--accent); }
+
+    .lb-score {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: #c8a84b;
+    }
+
+    .lb-row.me-row {
+      background: rgba(74, 158, 255, 0.05);
     }
   </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-6">
-  <h1 class="text-4xl font-bold text-center mb-8">Gacha Clicker</h1>
+<body>
 
-  <div class="absolute top-6 right-6 flex flex-col items-end gap-2">
-
-    <button id="profileBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">👤 Profile</button>
-    <div id="profileMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg text-white w-56">
-      <p class="text-lg font-bold mb-2">👤 <span id="profileName">...</span></p>
-      <hr class="border-gray-600 mb-2">
-      <p class="text-sm text-gray-400">Current score</p>
-      <p class="text-xl font-bold mb-2"><span id="profileScore">0</span> clicks</p>
-      <p class="text-sm text-gray-400">Total since the beginning</p>
-      <p class="text-xl font-bold text-yellow-400 mb-4"><span id="profileTotal">0</span> clicks</p>
-      <button id="logoutMenu" class="w-full py-2 bg-red-600 rounded hover:bg-red-700">Logout</button>
-    </div>
-
-    <button id="leaderboardBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">🏆 Leaderboard</button>
-    <div id="leaderboardMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg text-white w-64">
-      <p class="text-lg font-bold mb-3 text-center">🏆 ScoreBoard 🏆</p>
-      <div id="leaderboardPanel">
-        <p class="text-gray-400 text-center text-sm">Loading...</p>
-      </div>
-    </div>
-
+  <!-- Header -->
+  <div class="header">
+    <span class="header-logo">Gacha Clicker</span>
+    <div class="header-line"></div>
+    <span style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 2px;" id="headerUsername"></span>
   </div>
 
-  <div class="max-w-md mx-auto bg-gray-800 p-8 rounded-xl">
-    <div class="text-2xl mb-1">Score : <span id="score">0</span></div>
-    <div class="text-sm text-yellow-400 mb-6">All-time total : <span id="totalEver">0</span> clicks</div>
-    <button id="clickBtn" class="w-full py-6 bg-gray-700 rounded-xl text-3xl font-bold mb-6">
-      <span>Click.</span>
-      <div id="liquidFill"></div>
-    </button>
+  <!-- Top right -->
+  <div class="top-right">
+    <button class="nav-btn" id="profileBtn">[ Profile ]</button>
+    <div class="panel hidden" id="profileMenu">
+      <div class="panel-title">// Player Data</div>
+      <div class="panel-label">Username</div>
+      <div class="panel-value" id="profileName">—</div>
+      <div class="panel-label">Current Score</div>
+      <div class="panel-value" id="profileScore">0</div>
+      <div class="panel-label">All-Time Total</div>
+      <div class="panel-value gold" id="profileTotal">0</div>
+      <button class="logout-btn" id="logoutMenu">[ Disconnect ]</button>
+    </div>
+
+    <button class="nav-btn" id="leaderboardBtn">[ Leaderboard ]</button>
+    <div class="panel hidden" id="leaderboardMenu">
+      <div class="panel-title">// Top 50 Rankings</div>
+      <div id="leaderboardPanel">
+        <p style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 12px 0;">Loading...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="layout">
+    <div class="main-card">
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+
+      <div class="score-block">
+        <div class="score-label">// Score</div>
+        <div class="score-value" id="score">0</div>
+        <div class="score-total">ALL-TIME : <span id="totalEver">0</span></div>
+      </div>
+
+      <button id="clickBtn">
+        <span>Execute</span>
+        <div id="liquidFill"></div>
+      </button>
+    </div>
   </div>
 
   <script>
@@ -129,10 +442,10 @@
     const COOLDOWN = 3000
 
     function updateDisplay() {
-      document.getElementById("score").textContent = clicks
-      document.getElementById("totalEver").textContent = totalEver
-      document.getElementById("profileScore").textContent = clicks
-      document.getElementById("profileTotal").textContent = totalEver
+      document.getElementById("score").textContent = clicks.toLocaleString()
+      document.getElementById("totalEver").textContent = totalEver.toLocaleString()
+      document.getElementById("profileScore").textContent = clicks.toLocaleString()
+      document.getElementById("profileTotal").textContent = totalEver.toLocaleString()
     }
 
     function startCooldown() {
@@ -158,7 +471,7 @@
 
     async function loadLeaderboard() {
       const panel = document.getElementById("leaderboardPanel")
-      panel.innerHTML = '<p class="text-gray-400 text-center text-sm">Loading...</p>'
+      panel.innerHTML = '<p style="font-family: \'Share Tech Mono\', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 12px 0;">Loading...</p>'
 
       const { data } = await sb
         .from("player_scores")
@@ -167,21 +480,20 @@
         .limit(50)
 
       if (!data || data.length === 0) {
-        panel.innerHTML = '<p class="text-gray-400 text-center text-sm">No players yet</p>'
+        panel.innerHTML = '<p style="font-family: \'Share Tech Mono\', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 12px 0;">No data</p>'
         return
       }
 
       const medals = ["🥇", "🥈", "🥉"]
 
       panel.innerHTML = data.map((joueur, index) => {
-        const rank = index + 1
         const isMe = joueur.username === username
-        const medal = medals[index] || `#${rank}`
-
+        const rank = medals[index] || `#${index + 1}`
         return `
-          <div class="flex justify-between items-center py-2 px-2 rounded mb-1 ${isMe ? 'bg-purple-900' : 'hover:bg-gray-700'}">
-            <span class="text-sm">${medal} <span class="font-bold ${isMe ? 'text-purple-300' : ''}">${joueur.username}</span></span>
-            <span class="text-yellow-400 text-sm font-bold">${joueur.clicks.toLocaleString()}</span>
+          <div class="lb-row ${isMe ? 'me-row' : ''}">
+            <span class="lb-rank">${rank}</span>
+            <span class="lb-name ${isMe ? 'me' : ''}">${joueur.username}</span>
+            <span class="lb-score">${joueur.clicks.toLocaleString()}</span>
           </div>
         `
       }).join("")
@@ -219,6 +531,7 @@
       }
 
       document.getElementById("profileName").textContent = username
+      document.getElementById("headerUsername").textContent = username
       updateDisplay()
 
       const fill = document.getElementById("liquidFill")
@@ -240,12 +553,10 @@
 
     document.getElementById("clickBtn").onclick = function () {
       if (onCooldown) return
-
       clicks++
       totalEver++
       updateDisplay()
       startCooldown()
-
       if (saveTimeout) clearTimeout(saveTimeout)
       saveTimeout = setTimeout(saveScore, 2000)
     }
@@ -259,9 +570,7 @@
       const menu = document.getElementById("leaderboardMenu")
       menu.classList.toggle("hidden")
       document.getElementById("profileMenu").classList.add("hidden")
-      if (!menu.classList.contains("hidden")) {
-        loadLeaderboard()
-      }
+      if (!menu.classList.contains("hidden")) loadLeaderboard()
     }
 
     document.getElementById("logoutMenu").onclick = async function () {
@@ -271,7 +580,6 @@
     }
 
     window.addEventListener("beforeunload", saveScore)
-
     load()
   </script>
 </body>
