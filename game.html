@@ -10,16 +10,18 @@
     :root {
       --bg: #080a0c;
       --surface: #0d1117;
-      --surface2: #111820;
-      --border: #1e2d3d;
-      --border-bright: #2a4a6b;
+      --surface2: #131c26;
+      --surface3: #1a2535;
+      --border: #243447;
+      --border-bright: #3a5a7a;
       --accent: #4a9eff;
       --accent-dim: #1a3a5c;
       --purple: #7c3aed;
       --purple-bright: #9d5fff;
       --text: #c8d8e8;
-      --text-dim: #4a6a8a;
+      --text-dim: #6a8aaa;
       --text-bright: #e8f4ff;
+      --gold: #c8a84b;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -44,16 +46,6 @@
       z-index: 0;
     }
 
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0; left: 0;
-      width: 300px; height: 300px;
-      background: radial-gradient(circle at top left, rgba(74, 158, 255, 0.04), transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
     .layout {
       position: relative;
       z-index: 1;
@@ -65,23 +57,33 @@
       padding: 24px;
     }
 
+    /* HEADER */
     .header {
       position: fixed;
       top: 0; left: 0; right: 0;
-      height: 48px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      height: 52px;
+      background: #0a0f15;
+      border-bottom: 1px solid var(--border-bright);
       display: flex;
       align-items: center;
       padding: 0 24px;
       z-index: 100;
     }
 
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.4;
+    }
+
     .header-logo {
       font-family: 'Share Tech Mono', monospace;
-      font-size: 13px;
+      font-size: 14px;
       color: var(--accent);
-      letter-spacing: 4px;
+      letter-spacing: 5px;
       text-transform: uppercase;
     }
 
@@ -92,29 +94,50 @@
       margin: 0 24px;
     }
 
+    .header-user {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text);
+      letter-spacing: 2px;
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      padding: 4px 12px;
+    }
+
+    /* TOP RIGHT */
     .top-right {
       position: fixed;
-      top: 60px;
+      top: 64px;
       right: 20px;
       z-index: 100;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 8px;
+      gap: 6px;
     }
 
     .nav-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      padding: 6px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      color: var(--text);
+      padding: 8px 18px;
       font-family: 'Share Tech Mono', monospace;
       font-size: 11px;
       letter-spacing: 2px;
       text-transform: uppercase;
       cursor: pointer;
       transition: all 0.2s;
-      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+      clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+      position: relative;
+    }
+
+    .nav-btn::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 2px;
+      background: var(--accent);
+      opacity: 0.6;
     }
 
     .nav-btn:hover {
@@ -123,11 +146,16 @@
       background: var(--accent-dim);
     }
 
+    .nav-btn:hover::before {
+      opacity: 1;
+    }
+
+    /* PANELS */
     .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 16px;
-      width: 240px;
+      background: #0a0f15;
+      border: 1px solid var(--border-bright);
+      padding: 18px;
+      width: 250px;
       position: relative;
     }
 
@@ -135,7 +163,7 @@
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 1px;
+      height: 2px;
       background: linear-gradient(90deg, var(--accent), transparent);
     }
 
@@ -145,126 +173,146 @@
       letter-spacing: 3px;
       color: var(--accent);
       text-transform: uppercase;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-bright);
     }
 
     .panel-label {
-      font-size: 11px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
       color: var(--text-dim);
-      letter-spacing: 1px;
+      letter-spacing: 2px;
       text-transform: uppercase;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
 
     .panel-value {
       font-family: 'Share Tech Mono', monospace;
-      font-size: 18px;
+      font-size: 20px;
       color: var(--text-bright);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
-    .panel-value.gold { color: #c8a84b; }
+    .panel-value.gold { color: var(--gold); }
 
     .hidden { display: none !important; }
 
     .logout-btn {
       width: 100%;
-      padding: 8px;
-      background: transparent;
-      border: 1px solid #3a1a1a;
-      color: #8a3a3a;
+      padding: 9px;
+      background: rgba(180, 30, 30, 0.1);
+      border: 1px solid #5a2a2a;
+      color: #cc6666;
       font-family: 'Share Tech Mono', monospace;
       font-size: 11px;
       letter-spacing: 2px;
       text-transform: uppercase;
       cursor: pointer;
-      margin-top: 8px;
+      margin-top: 10px;
       transition: all 0.2s;
     }
 
     .logout-btn:hover {
       border-color: #cc3333;
-      color: #cc3333;
-      background: rgba(204, 51, 51, 0.08);
+      color: #ff6666;
+      background: rgba(204, 51, 51, 0.15);
     }
 
+    /* MAIN CARD */
     .main-card {
       background: var(--surface);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-bright);
       padding: 48px 40px;
       width: 100%;
       max-width: 460px;
       position: relative;
-      margin-top: 48px;
+      margin-top: 52px;
     }
 
     .main-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 1px;
+      height: 2px;
       background: linear-gradient(90deg, transparent, var(--accent), transparent);
     }
 
-    .corner { position: absolute; width: 12px; height: 12px; }
+    .corner { position: absolute; width: 14px; height: 14px; }
     .corner-tl { top: -1px; left: -1px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
     .corner-tr { top: -1px; right: -1px; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
     .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
     .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 
-    .score-block { margin-bottom: 36px; }
+    /* SCORE */
+    .score-block { margin-bottom: 40px; }
 
     .score-label {
       font-family: 'Share Tech Mono', monospace;
       font-size: 10px;
-      letter-spacing: 3px;
+      letter-spacing: 4px;
       color: var(--text-dim);
       text-transform: uppercase;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .score-value {
       font-family: 'Share Tech Mono', monospace;
-      font-size: 36px;
+      font-size: 42px;
       color: var(--text-bright);
       line-height: 1;
+      text-shadow: 0 0 20px rgba(74, 158, 255, 0.2);
+    }
+
+    .score-divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-bright), transparent);
+      margin: 10px 0;
     }
 
     .score-total {
       font-family: 'Share Tech Mono', monospace;
       font-size: 11px;
-      color: #c8a84b;
-      margin-top: 6px;
-      letter-spacing: 1px;
+      color: var(--gold);
+      letter-spacing: 2px;
     }
 
-    /* FIOLE */
+    /* VIAL */
     .vial-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       cursor: pointer;
       user-select: none;
     }
 
     .vial-label {
       font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 4px;
-      color: var(--text-dim);
+      font-size: 12px;
+      letter-spacing: 5px;
+      color: var(--text);
       text-transform: uppercase;
       transition: color 0.2s;
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      padding: 7px 24px;
+      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
     }
 
-    .vial-wrapper:hover .vial-label {
+    .vial-wrapper:hover:not(.on-cooldown) .vial-label {
       color: var(--purple-bright);
+      border-color: var(--purple-bright);
+      background: rgba(124, 58, 237, 0.1);
+    }
+
+    .vial-wrapper.on-cooldown {
+      cursor: not-allowed;
     }
 
     .vial-wrapper.on-cooldown .vial-label {
       color: var(--text-dim);
+      border-color: var(--border);
     }
 
     .vial-container {
@@ -276,18 +324,12 @@
     .vial-svg {
       width: 100%;
       height: 100%;
-      filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.3));
+      filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.35));
       transition: filter 0.3s;
     }
 
     .vial-wrapper:hover:not(.on-cooldown) .vial-svg {
-      filter: drop-shadow(0 0 14px rgba(157, 95, 255, 0.5));
-    }
-
-    /* Liquid fill inside SVG */
-    #vialLiquid {
-      transition: none;
-      will-change: height, y;
+      filter: drop-shadow(0 0 18px rgba(157, 95, 255, 0.55));
     }
 
     #vialWave1, #vialWave2 {
@@ -305,7 +347,7 @@
       100% { transform: translateX(-50%); }
     }
 
-    /* Leaderboard */
+    /* LEADERBOARD */
     #leaderboardPanel {
       max-height: 380px;
       overflow-y: auto;
@@ -319,30 +361,17 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 0;
+      padding: 7px 4px;
       border-bottom: 1px solid var(--border);
       font-size: 13px;
     }
 
     .lb-row:last-child { border-bottom: none; }
-
-    .lb-rank {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      color: var(--text-dim);
-      width: 28px;
-    }
-
+    .lb-rank { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); width: 28px; }
     .lb-name { flex: 1; color: var(--text); font-weight: 500; }
     .lb-name.me { color: var(--accent); }
-
-    .lb-score {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 12px;
-      color: #c8a84b;
-    }
-
-    .lb-row.me-row { background: rgba(74, 158, 255, 0.05); }
+    .lb-score { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--gold); }
+    .lb-row.me-row { background: rgba(74, 158, 255, 0.06); }
   </style>
 </head>
 <body>
@@ -350,7 +379,7 @@
   <div class="header">
     <span class="header-logo">Gacha Clicker</span>
     <div class="header-line"></div>
-    <span style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 2px;" id="headerUsername"></span>
+    <span class="header-user" id="headerUsername">—</span>
   </div>
 
   <div class="top-right">
@@ -383,18 +412,17 @@
       <div class="corner corner-br"></div>
 
       <div class="score-block">
-        <div class="score-label">// Score</div>
+        <div class="score-label">// Current Score</div>
         <div class="score-value" id="score">0</div>
+        <div class="score-divider"></div>
         <div class="score-total">ALL-TIME : <span id="totalEver">0</span></div>
       </div>
 
-      <!-- FIOLE -->
       <div class="vial-wrapper" id="clickBtn">
         <div class="vial-container">
           <svg class="vial-svg" viewBox="0 0 400 80" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <clipPath id="vialClip">
-                <!-- Forme de fiole horizontale : corps large + col à droite -->
                 <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"/>
               </clipPath>
               <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
@@ -402,53 +430,44 @@
                 <stop offset="100%" stop-color="#3b0764"/>
               </linearGradient>
               <linearGradient id="glassShine" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="rgba(255,255,255,0.08)"/>
+                <stop offset="0%" stop-color="rgba(255,255,255,0.07)"/>
                 <stop offset="40%" stop-color="rgba(255,255,255,0.02)"/>
-                <stop offset="100%" stop-color="rgba(0,0,0,0.2)"/>
+                <stop offset="100%" stop-color="rgba(0,0,0,0.25)"/>
               </linearGradient>
             </defs>
 
-            <!-- Liquid group clipped to vial shape -->
             <g clip-path="url(#vialClip)">
-              <!-- Liquid fill -->
               <rect id="vialLiquid" x="0" y="80" width="400" height="80" fill="url(#liquidGrad)"/>
-              <!-- Wave 1 -->
               <g id="vialWave1">
                 <ellipse cx="100" cy="0" rx="200" ry="10" fill="#7c3aed"/>
                 <ellipse cx="300" cy="0" rx="200" ry="10" fill="#7c3aed"/>
               </g>
-              <!-- Wave 2 -->
               <g id="vialWave2">
                 <ellipse cx="100" cy="0" rx="200" ry="8" fill="#9d5fff"/>
                 <ellipse cx="300" cy="0" rx="200" ry="8" fill="#9d5fff"/>
               </g>
             </g>
 
-            <!-- Vial outline -->
+            <!-- Vial border -->
             <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"
-              fill="none"
-              stroke="#2a4a6b"
-              stroke-width="1.5"/>
+              fill="none" stroke="#3a5a7a" stroke-width="1.5"/>
 
-            <!-- Glass shine overlay -->
+            <!-- Glass shine -->
             <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"
               fill="url(#glassShine)"/>
 
-            <!-- Inner highlight top -->
+            <!-- Highlight -->
             <path d="M30,14 L330,14 Q346,14 354,24 L360,32"
-              fill="none"
-              stroke="rgba(255,255,255,0.06)"
-              stroke-width="3"
-              stroke-linecap="round"/>
+              fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="3" stroke-linecap="round"/>
 
-            <!-- Measurement lines -->
-            <line x1="80" y1="64" x2="80" y2="56" stroke="rgba(74,158,255,0.3)" stroke-width="1"/>
-            <line x1="160" y1="64" x2="160" y2="58" stroke="rgba(74,158,255,0.2)" stroke-width="1"/>
-            <line x1="240" y1="64" x2="240" y2="56" stroke="rgba(74,158,255,0.3)" stroke-width="1"/>
-            <line x1="320" y1="64" x2="320" y2="58" stroke="rgba(74,158,255,0.2)" stroke-width="1"/>
+            <!-- Graduation marks -->
+            <line x1="80"  y1="64" x2="80"  y2="56" stroke="rgba(74,158,255,0.35)" stroke-width="1"/>
+            <line x1="160" y1="64" x2="160" y2="59" stroke="rgba(74,158,255,0.2)"  stroke-width="1"/>
+            <line x1="240" y1="64" x2="240" y2="56" stroke="rgba(74,158,255,0.35)" stroke-width="1"/>
+            <line x1="320" y1="64" x2="320" y2="59" stroke="rgba(74,158,255,0.2)"  stroke-width="1"/>
           </svg>
         </div>
-        <div class="vial-label" id="vialLabel">[ Execute ]</div>
+        <div class="vial-label" id="vialLabel">Execute</div>
       </div>
 
     </div>
@@ -468,8 +487,6 @@
     let onCooldown = false
 
     const COOLDOWN = 3000
-    const VIAL_HEIGHT = 80
-    const VIAL_TOP = 0
 
     function updateDisplay() {
       document.getElementById("score").textContent = clicks.toLocaleString()
@@ -479,13 +496,10 @@
     }
 
     function setLiquidLevel(percent) {
-      // percent 0 = vide, 1 = plein
       const liquid = document.getElementById("vialLiquid")
       const wave1 = document.getElementById("vialWave1")
       const wave2 = document.getElementById("vialWave2")
-
-      // y position : 80 = vide (bas), 0 = plein (haut), on déborde à -5 pour cacher les vagues
-      const yPos = VIAL_HEIGHT - (percent * (VIAL_HEIGHT + 5))
+      const yPos = 80 - (percent * 85)
       liquid.setAttribute("y", yPos)
       wave1.setAttribute("transform", `translate(0, ${yPos})`)
       wave2.setAttribute("transform", `translate(0, ${yPos - 5})`)
@@ -495,11 +509,9 @@
       onCooldown = true
       const btn = document.getElementById("clickBtn")
       const label = document.getElementById("vialLabel")
-
       btn.classList.add("on-cooldown")
-      label.textContent = "[ Recharging... ]"
+      label.textContent = "Recharging..."
 
-      // Vide la fiole rapidement
       const drainStart = performance.now()
       const drainDuration = 400
 
@@ -521,15 +533,13 @@
       function refillAnimate(now) {
         const elapsed = now - refillStart
         const progress = Math.min(elapsed / COOLDOWN, 1)
-        setLiquidLevel(progress * 1.05) // légère surcharge pour cacher vagues
+        setLiquidLevel(progress * 1.05)
         if (progress < 1) {
           requestAnimationFrame(refillAnimate)
         } else {
           onCooldown = false
-          const btn = document.getElementById("clickBtn")
-          const label = document.getElementById("vialLabel")
-          btn.classList.remove("on-cooldown")
-          label.textContent = "[ Execute ]"
+          document.getElementById("clickBtn").classList.remove("on-cooldown")
+          document.getElementById("vialLabel").textContent = "Execute"
           setLiquidLevel(1.05)
         }
       }
@@ -553,7 +563,6 @@
       }
 
       const medals = ["🥇", "🥈", "🥉"]
-
       panel.innerHTML = data.map((joueur, index) => {
         const isMe = joueur.username === username
         const rank = medals[index] || `#${index + 1}`
@@ -582,7 +591,6 @@
         const urlParams = new URLSearchParams(window.location.search)
         const pseudoFromUrl = urlParams.get('pseudo')
         const defaultName = pseudoFromUrl || user.email.split("@")[0]
-
         await sb.from("player_scores").insert({
           user_id: userId,
           clicks: 0,
@@ -608,11 +616,7 @@
       if (!userId) return
       await sb
         .from("player_scores")
-        .update({
-          clicks: clicks,
-          total_clicks_ever: totalEver,
-          updated_at: new Date()
-        })
+        .update({ clicks, total_clicks_ever: totalEver, updated_at: new Date() })
         .eq("user_id", userId)
     }
 
