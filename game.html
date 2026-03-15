@@ -10,7 +10,6 @@
 <body class="bg-gray-900 text-white min-h-screen p-6">
   <h1 class="text-4xl font-bold text-center mb-8">Gacha Clicker</h1>
 
-  <!-- Bouton Profil -->
   <div class="absolute top-6 right-6">
     <button id="profileBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">👤 Profil</button>
     <div id="profileMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg mt-2 text-white w-56">
@@ -44,7 +43,7 @@
     let userId = null
     let saveTimeout = null
     let lastClickTime = 0
-    const MIN_INTERVAL = 1000 / 15 // 66ms entre chaque clic = 15 CPS max
+    const MIN_INTERVAL = 1000 / 15
 
     function updateDisplay() {
       document.getElementById("score").textContent = clicks
@@ -65,8 +64,11 @@
         .single()
 
       if (!data) {
-        // Récupère le pseudo choisi à l'inscription
-        const defaultName = user.user_metadata?.pseudo || user.email.split("@")[0]
+        // Nouveau joueur : récupère le pseudo depuis l'URL
+        const urlParams = new URLSearchParams(window.location.search)
+        const pseudoFromUrl = urlParams.get('pseudo')
+        const defaultName = pseudoFromUrl || user.email.split("@")[0]
+
         await sb.from("player_scores").insert({
           user_id: userId,
           clicks: 0,
@@ -79,7 +81,7 @@
       } else {
         clicks = data.clicks || 0
         totalEver = data.total_clicks_ever || 0
-        username = data.username || user.user_metadata?.pseudo || 'Joueur'
+        username = data.username || 'Joueur'
       }
 
       document.getElementById("welcome").textContent = `Salut ${username} !`
