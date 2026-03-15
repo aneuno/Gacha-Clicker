@@ -113,6 +113,37 @@
       document.getElementById("profileTotal").textContent = totalEver
     }
 
+    function playFillSound() {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)()
+
+      const bufferSize = ctx.sampleRate * 1.5
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+      const data = buffer.getChannelData(0)
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.3
+      }
+
+      const source = ctx.createBufferSource()
+      source.buffer = buffer
+
+      // Filtre passe-bas pour un son doux et liquide
+      const filter = ctx.createBiquadFilter()
+      filter.type = "lowpass"
+      filter.frequency.setValueAtTime(400, ctx.currentTime)
+      filter.frequency.linearRampToValueAtTime(800, ctx.currentTime + 1.5)
+
+      // Volume qui monte puis redescend doucement
+      const gain = ctx.createGain()
+      gain.gain.setValueAtTime(0, ctx.currentTime)
+      gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.3)
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.5)
+
+      source.connect(filter)
+      filter.connect(gain)
+      gain.connect(ctx.destination)
+      source.start()
+    }
+
     function startCooldown() {
       onCooldown = true
       const btn = document.getElementById("clickBtn")
@@ -124,10 +155,11 @@
       fill.style.transition = "height 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
       fill.style.height = "0%"
 
-      // Étape 2 : remplissage progressif
+      // Étape 2 : remplissage progressif + son
       setTimeout(() => {
         fill.style.transition = `height ${COOLDOWN}ms linear`
         fill.style.height = "110%"
+        playFillSound()
       }, 450)
 
       // Étape 3 : déverrouille le bouton
