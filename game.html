@@ -62,14 +62,30 @@
     #clickBtn.on-cooldown {
       cursor: not-allowed;
     }
+
+    #leaderboardPanel {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    #leaderboardPanel::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #leaderboardPanel::-webkit-scrollbar-thumb {
+      background: #6d28d9;
+      border-radius: 2px;
+    }
   </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen p-6">
   <h1 class="text-4xl font-bold text-center mb-8">Gacha Clicker</h1>
 
-  <div class="absolute top-6 right-6">
+  <div class="absolute top-6 right-6 flex flex-col items-end gap-2">
+
+    <!-- Bouton Profil -->
     <button id="profileBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">👤 Profil</button>
-    <div id="profileMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg mt-2 text-white w-56">
+    <div id="profileMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg text-white w-56">
       <p class="text-lg font-bold mb-2">👤 <span id="profileName">...</span></p>
       <hr class="border-gray-600 mb-2">
       <p class="text-sm text-gray-400">Score actuel</p>
@@ -78,6 +94,16 @@
       <p class="text-xl font-bold text-yellow-400 mb-4"><span id="profileTotal">0</span> clics</p>
       <button id="logoutMenu" class="w-full py-2 bg-red-600 rounded hover:bg-red-700">Déconnexion</button>
     </div>
+
+    <!-- Bouton Leaderboard -->
+    <button id="leaderboardBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">🏆 Classement</button>
+    <div id="leaderboardMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg text-white w-64">
+      <p class="text-lg font-bold mb-3 text-center">🏆 Top 50</p>
+      <div id="leaderboardPanel">
+        <p class="text-gray-400 text-center text-sm">Chargement...</p>
+      </div>
+    </div>
+
   </div>
 
   <div class="max-w-md mx-auto bg-gray-800 p-8 rounded-xl">
@@ -88,11 +114,6 @@
       <span>Clique.</span>
       <div id="liquidFill"></div>
     </button>
-
-    <!-- Carte Strelitzia -->
-    <div id="carte-strelitzia" class="text-center mt-4">
-      <p class="text-gray-400 text-sm">Chargement de la carte...</p>
-    </div>
   </div>
 
   <script>
@@ -138,22 +159,35 @@
       }, 450 + COOLDOWN)
     }
 
-    async function loadCarte() {
-      const { data } = await sb
-        .from("cartes")
-        .select("*")
-        .eq("id", "strelitzia")
-        .single()
+    async function loadLeaderboard() {
+      const panel = document.getElementById("leaderboardPanel")
+      panel.innerHTML = '<p class="text-gray-400 text-center text-sm">Chargement...</p>'
 
-      if (data) {
-        document.getElementById("carte-strelitzia").innerHTML = `
-          <div class="bg-gray-700 rounded-xl p-4 inline-block">
-            <img src="${data.image_url}" class="w-48 rounded-lg mb-2 mx-auto">
-            <p class="font-bold text-lg">${data.nom}</p>
-            <p class="text-yellow-400 text-sm">Rareté ${data.rarete}</p>
+      const { data } = await sb
+        .from("player_scores")
+        .select("username, clicks")
+        .order("clicks", { ascending: false })
+        .limit(50)
+
+      if (!data || data.length === 0) {
+        panel.innerHTML = '<p class="text-gray-400 text-center text-sm">Aucun joueur</p>'
+        return
+      }
+
+      const medals = ["🥇", "🥈", "🥉"]
+
+      panel.innerHTML = data.map((joueur, index) => {
+        const rank = index + 1
+        const isMe = joueur.username === username
+        const medal = medals[index] || `#${rank}`
+
+        return `
+          <div class="flex justify-between items-center py-2 px-2 rounded mb-1 ${isMe ? 'bg-purple-900' : 'hover:bg-gray-700'}">
+            <span class="text-sm">${medal} <span class="font-bold ${isMe ? 'text-purple-300' : ''}">${joueur.username}</span></span>
+            <span class="text-yellow-400 text-sm font-bold">${joueur.clicks.toLocaleString()}</span>
           </div>
         `
-      }
+      }).join("")
     }
 
     async function load() {
@@ -194,8 +228,6 @@
       const fill = document.getElementById("liquidFill")
       fill.style.transition = "none"
       fill.style.height = "110%"
-
-      loadCarte()
     }
 
     async function saveScore() {
@@ -224,6 +256,16 @@
 
     document.getElementById("profileBtn").onclick = () => {
       document.getElementById("profileMenu").classList.toggle("hidden")
+      document.getElementById("leaderboardMenu").classList.add("hidden")
+    }
+
+    document.getElementById("leaderboardBtn").onclick = () => {
+      const menu = document.getElementById("leaderboardMenu")
+      menu.classList.toggle("hidden")
+      document.getElementById("profileMenu").classList.add("hidden")
+      if (!menu.classList.contains("hidden")) {
+        loadLeaderboard()
+      }
     }
 
     document.getElementById("logoutMenu").onclick = async function () {
