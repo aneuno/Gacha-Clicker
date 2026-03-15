@@ -103,6 +103,7 @@
     let userId = null
     let saveTimeout = null
     let onCooldown = false
+    let audioCtx = null
 
     const COOLDOWN = 3000
 
@@ -113,35 +114,39 @@
       document.getElementById("profileTotal").textContent = totalEver
     }
 
-    function playFillSound() {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)()
-
-      const bufferSize = ctx.sampleRate * 1.5
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
-      const data = buffer.getChannelData(0)
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * 0.3
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)()
       }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume()
+      }
+      return audioCtx
+    }
 
-      const source = ctx.createBufferSource()
-      source.buffer = buffer
+    function playFillSound() {
+      const ctx = getAudioCtx()
 
-      // Filtre passe-bas pour un son doux et liquide
-      const filter = ctx.createBiquadFilter()
-      filter.type = "lowpass"
-      filter.frequency.setValueAtTime(400, ctx.currentTime)
-      filter.frequency.linearRampToValueAtTime(800, ctx.currentTime + 1.5)
+      for (let i = 0; i < 8; i++) {
+        setTimeout(() => {
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
 
-      // Volume qui monte puis redescend doucement
-      const gain = ctx.createGain()
-      gain.gain.setValueAtTime(0, ctx.currentTime)
-      gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.3)
-      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.5)
+          osc.frequency.setValueAtTime(300 + Math.random() * 400, ctx.currentTime)
+          osc.frequency.exponentialRampToValueAtTime(80 + Math.random() * 100, ctx.currentTime + 0.15)
 
-      source.connect(filter)
-      filter.connect(gain)
-      gain.connect(ctx.destination)
-      source.start()
+          osc.type = "sine"
+
+          gain.gain.setValueAtTime(0.08, ctx.currentTime)
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15)
+
+          osc.connect(gain)
+          gain.connect(ctx.destination)
+
+          osc.start(ctx.currentTime)
+          osc.stop(ctx.currentTime + 0.15)
+        }, i * 120 + Math.random() * 80)
+      }
     }
 
     function startCooldown() {
