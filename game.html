@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gacha Clicker</title>
+  <title>Gacha Clicker — Market</title>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -15,14 +15,13 @@
       --border-bright: #3a5a7a;
       --accent: #4a9eff;
       --accent-dim: #1a3a5c;
-      --purple: #7c3aed;
-      --purple-bright: #9d5fff;
       --text: #c8d8e8;
       --text-dim: #6a8aaa;
       --text-bright: #e8f4ff;
       --gold: #c8a84b;
       --silver: #a8b8c8;
-      --sidebar-width: 240px;
+      --green: #4aefaa;
+      --pink: #ef4aaa;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,7 +31,6 @@
       color: var(--text);
       font-family: 'Rajdhani', sans-serif;
       min-height: 100vh;
-      overflow-x: hidden;
     }
 
     body::before {
@@ -57,6 +55,7 @@
       align-items: center;
       padding: 0 24px;
       z-index: 200;
+      gap: 16px;
     }
 
     .header::after {
@@ -68,16 +67,7 @@
       opacity: 0.4;
     }
 
-    .header-logo {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 14px;
-      color: var(--accent);
-      letter-spacing: 5px;
-      text-transform: uppercase;
-    }
-
-    .header-menu-btn {
-      margin-left: 20px;
+    .back-btn {
       background: var(--surface2);
       border: 1px solid var(--border-bright);
       color: var(--text-dim);
@@ -87,21 +77,21 @@
       letter-spacing: 2px;
       cursor: pointer;
       transition: all 0.2s;
+      text-decoration: none;
       clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
     }
 
-    .header-menu-btn:hover, .header-menu-btn.active {
-      border-color: var(--accent);
+    .back-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+    .header-logo {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
       color: var(--accent);
-      background: var(--accent-dim);
+      letter-spacing: 5px;
+      text-transform: uppercase;
     }
 
-    .header-line {
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
-      margin: 0 24px;
-    }
+    .header-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border) 0%, transparent 100%); }
 
     .header-user {
       font-family: 'Share Tech Mono', monospace;
@@ -138,367 +128,209 @@
     .resource-label { color: var(--text-dim); letter-spacing: 1px; }
     .resource-value { color: var(--text-bright); }
     .resource-value.silver { color: var(--silver); }
-    .resource-value.essence { color: #4aefaa; }
-    .resource-value.crystals { color: #ef4aaa; }
-
-    .sidebar {
-      position: fixed;
-      top: 92px; left: 0; bottom: 0;
-      width: var(--sidebar-width);
-      background: #0a0f15;
-      border-right: 1px solid var(--border-bright);
-      z-index: 150;
-      transform: translateX(-100%);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-
-    .sidebar::before {
-      content: '';
-      position: absolute;
-      top: 0; right: 0;
-      width: 1px; height: 100%;
-      background: linear-gradient(180deg, var(--accent), transparent 60%);
-      opacity: 0.4;
-    }
-
-    .sidebar.open { transform: translateX(0); }
-
-    .sidebar-section {
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .sidebar-section-title {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 3px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      padding: 0 16px 10px;
-    }
-
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 16px;
-      cursor: pointer;
-      transition: all 0.15s;
-      border-left: 2px solid transparent;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 1px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      text-decoration: none;
-    }
-
-    .sidebar-item:hover {
-      background: var(--surface2);
-      color: var(--text);
-      border-left-color: var(--accent);
-    }
-
-    .sidebar-item.active {
-      background: var(--accent-dim);
-      color: var(--accent);
-      border-left-color: var(--accent);
-    }
-
-    .sidebar-item.disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-
-    .sidebar-icon { font-size: 14px; width: 18px; text-align: center; }
-    .soon-tag { margin-left: auto; font-size: 8px; color: var(--text-dim); letter-spacing: 1px; opacity: 0.6; }
+    .resource-value.essence { color: var(--green); }
+    .resource-value.crystals { color: var(--pink); }
 
     .layout {
       position: relative;
       z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      margin-top: 92px;
-      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 112px 40px 40px;
+      max-width: 900px;
+      margin: 0 auto;
     }
 
-    .layout.sidebar-open { padding-left: calc(var(--sidebar-width) + 24px); }
-
-    .top-right {
-      position: fixed;
-      top: 104px; right: 20px;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
+    .page-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 8px;
     }
 
-    .nav-btn {
-      background: var(--surface2);
-      border: 1px solid var(--border-bright);
-      color: var(--text);
-      padding: 8px 18px;
+    .page-subtitle {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      opacity: 0.5;
+      margin-bottom: 28px;
+      letter-spacing: 1px;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border-bright);
+    }
+
+    .tab {
+      padding: 10px 24px;
       font-family: 'Share Tech Mono', monospace;
       font-size: 11px;
       letter-spacing: 2px;
       text-transform: uppercase;
+      color: var(--text-dim);
       cursor: pointer;
       transition: all 0.2s;
-      clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
-      position: relative;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
     }
 
-    .nav-btn::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 2px;
-      background: var(--accent);
-      opacity: 0.6;
-    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-    .nav-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-    .nav-btn:hover::before { opacity: 1; }
+    .tab-content { display: none; }
+    .tab-content.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
 
-    .panel {
-      background: #0a0f15;
+    .market-item {
+      background: var(--surface);
       border: 1px solid var(--border-bright);
-      padding: 18px;
-      width: 250px;
+      padding: 20px;
       position: relative;
+      transition: border-color 0.2s;
     }
 
-    .panel::before {
+    .market-item::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 2px;
       background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0.5;
     }
 
-    .panel-title {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 3px;
-      color: var(--accent);
-      text-transform: uppercase;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border-bright);
+    .market-item:hover { border-color: var(--accent); }
+
+    .market-item.locked {
+      opacity: 0.4;
+      pointer-events: none;
     }
 
-    .panel-label {
+    .market-item.owned {
+      border-color: var(--gold);
+    }
+
+    .market-item.owned::before {
+      background: linear-gradient(90deg, var(--gold), transparent);
+      opacity: 0.8;
+    }
+
+    .item-icon { font-size: 28px; margin-bottom: 10px; }
+
+    .item-name {
       font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      color: var(--text-dim);
+      font-size: 12px;
       letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 3px;
-    }
-
-    .panel-value {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 20px;
       color: var(--text-bright);
-      margin-bottom: 12px;
-    }
-
-    .panel-value.gold { color: var(--gold); }
-    .hidden { display: none !important; }
-
-    .logout-btn {
-      width: 100%;
-      padding: 9px;
-      background: rgba(180, 30, 30, 0.1);
-      border: 1px solid #5a2a2a;
-      color: #cc6666;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: all 0.2s;
-    }
-
-    .logout-btn:hover { border-color: #cc3333; color: #ff6666; background: rgba(204, 51, 51, 0.15); }
-
-    .main-card {
-      background: var(--surface);
-      border: 1px solid var(--border-bright);
-      padding: 48px 40px;
-      width: 100%;
-      max-width: 460px;
-      position: relative;
-    }
-
-    .main-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    }
-
-    .corner { position: absolute; width: 14px; height: 14px; }
-    .corner-tl { top: -1px; left: -1px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
-    .corner-tr { top: -1px; right: -1px; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
-    .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
-    .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
-
-    .score-block { margin-bottom: 32px; }
-
-    .score-label {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 4px;
-      color: var(--text-dim);
       text-transform: uppercase;
       margin-bottom: 6px;
     }
 
-    .score-value {
+    .item-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .item-farm-time {
       font-family: 'Share Tech Mono', monospace;
-      font-size: 42px;
-      color: var(--text-bright);
-      line-height: 1;
-      text-shadow: 0 0 20px rgba(74, 158, 255, 0.2);
+      font-size: 9px;
+      color: var(--text-dim);
+      opacity: 0.6;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
     }
 
-    .score-divider {
-      height: 1px;
-      background: linear-gradient(90deg, var(--border-bright), transparent);
-      margin: 10px 0;
+    .item-price {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: var(--silver);
+      margin-bottom: 12px;
     }
 
-    .score-total {
+    .item-price span { color: var(--text-bright); }
+
+    .buy-btn {
+      width: 100%;
+      padding: 9px;
+      background: var(--accent-dim);
+      border: 1px solid var(--border-bright);
+      color: var(--accent);
       font-family: 'Share Tech Mono', monospace;
       font-size: 11px;
-      color: var(--gold);
       letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
     }
 
-    .sell-input-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-      align-items: center;
-    }
+    .buy-btn:hover { background: rgba(74, 158, 255, 0.2); border-color: var(--accent); }
 
-    .sell-input {
-      flex: 1;
-      background: var(--surface2);
-      border: 1px solid var(--border-bright);
-      color: var(--text-bright);
-      padding: 8px 12px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 12px;
-      outline: none;
-    }
-
-    .sell-input:focus { border-color: var(--gold); }
-
-    .sell-confirm-btn {
-      padding: 8px 16px;
-      background: rgba(200, 168, 75, 0.15);
+    .upgrade-btn {
+      width: 100%;
+      padding: 9px;
+      background: rgba(200, 168, 75, 0.1);
       border: 1px solid var(--gold);
       color: var(--gold);
       font-family: 'Share Tech Mono', monospace;
       font-size: 11px;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
       cursor: pointer;
       transition: all 0.2s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
     }
 
-    .sell-confirm-btn:hover { background: rgba(200, 168, 75, 0.3); }
+    .upgrade-btn:hover { background: rgba(200, 168, 75, 0.25); }
 
-    .sell-preview {
+    .owned-badge {
+      width: 100%;
+      padding: 9px;
+      background: rgba(200, 168, 75, 0.05);
+      border: 1px solid rgba(200, 168, 75, 0.3);
+      color: var(--gold);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .machine-tier {
+      position: absolute;
+      top: 10px; right: 10px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      background: var(--surface2);
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+    }
+
+    .machine-tier.active-tier {
+      color: var(--gold);
+      border-color: var(--gold);
+    }
+
+    .machine-stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
       font-family: 'Share Tech Mono', monospace;
       font-size: 10px;
       color: var(--text-dim);
-      margin-top: 6px;
-      letter-spacing: 1px;
     }
 
-    .vial-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .vial-label {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 5px;
-      color: var(--text);
-      text-transform: uppercase;
-      transition: all 0.2s;
-      background: var(--surface2);
-      border: 1px solid var(--border-bright);
-      padding: 7px 24px;
-      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-    }
-
-    .vial-wrapper:hover:not(.on-cooldown) .vial-label {
-      color: var(--purple-bright);
-      border-color: var(--purple-bright);
-      background: rgba(124, 58, 237, 0.1);
-    }
-
-    .vial-wrapper.on-cooldown { cursor: not-allowed; }
-    .vial-wrapper.on-cooldown .vial-label { color: var(--text-dim); border-color: var(--border); }
-
-    .vial-container { position: relative; width: 100%; height: 80px; }
-
-    .vial-svg {
-      width: 100%; height: 100%;
-      filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.35));
-      transition: filter 0.3s;
-    }
-
-    .vial-wrapper:hover:not(.on-cooldown) .vial-svg {
-      filter: drop-shadow(0 0 18px rgba(157, 95, 255, 0.55));
-    }
-
-    #vialWave1, #vialWave2 { animation: vialWave 4s linear infinite; }
-    #vialWave2 { animation-duration: 6s; animation-direction: reverse; opacity: 0.6; }
-
-    @keyframes vialWave {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-
-    #leaderboardPanel { max-height: 380px; overflow-y: auto; }
-    #leaderboardPanel::-webkit-scrollbar { width: 3px; }
-    #leaderboardPanel::-webkit-scrollbar-thumb { background: var(--accent-dim); }
-
-    .lb-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 7px 4px;
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-    }
-
-    .lb-row:last-child { border-bottom: none; }
-    .lb-rank { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); width: 28px; }
-    .lb-name { flex: 1; color: var(--text); font-weight: 500; }
-    .lb-name.me { color: var(--accent); }
-    .lb-score { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--gold); }
-    .lb-row.me-row { background: rgba(74, 158, 255, 0.06); }
+    .stat span { color: var(--green); }
+    .stat span.cost { color: #ef9a4a; }
+    .stat span.net { color: var(--accent); }
 
     .toast {
       position: fixed;
@@ -525,8 +357,8 @@
 <body>
 
   <div class="header">
-    <span class="header-logo">Gacha Clicker</span>
-    <button class="header-menu-btn" id="sidebarBtn">≡ Menu</button>
+    <a class="back-btn" href="game.html">← Back</a>
+    <span class="header-logo">Market</span>
     <div class="header-line"></div>
     <span class="header-user" id="headerUsername">—</span>
   </div>
@@ -559,133 +391,135 @@
     </div>
   </div>
 
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-section-title">// Main</div>
-      <div class="sidebar-item active">
-        <span class="sidebar-icon">⚗️</span> Synthesizer
-      </div>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-section-title">// Economy</div>
-      <a class="sidebar-item" href="market.html">
-        <span class="sidebar-icon">🏪</span> Market
-      </a>
-      <div class="sidebar-item disabled">
-        <span class="sidebar-icon">🏭</span> Machines
-        <span class="soon-tag">Soon</span>
-      </div>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-section-title">// Collection</div>
-      <div class="sidebar-item disabled">
-        <span class="sidebar-icon">🃏</span> Inventory
-        <span class="soon-tag">Soon</span>
-      </div>
-      <div class="sidebar-item disabled">
-        <span class="sidebar-icon">✨</span> Gacha
-        <span class="soon-tag">Soon</span>
-      </div>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-section-title">// Progression</div>
-      <div class="sidebar-item disabled">
-        <span class="sidebar-icon">📜</span> Quests
-        <span class="soon-tag">Soon</span>
-      </div>
-      <div class="sidebar-item disabled">
-        <span class="sidebar-icon">🏆</span> Achievements
-        <span class="soon-tag">Soon</span>
-      </div>
-    </div>
-  </div>
+  <div class="layout">
+    <div class="page-title">// Market</div>
+    <div class="page-subtitle">Base rate: ~12 Silver/hour · 1 Crystal pull ≈ 1 hour · Machines give net profit after Essence cost</div>
 
-  <div class="top-right">
-    <button class="nav-btn" id="profileBtn">[ Profile ]</button>
-    <div class="panel hidden" id="profileMenu">
-      <div class="panel-title">// Player Data</div>
-      <div class="panel-label">Username</div>
-      <div class="panel-value" id="profileName">—</div>
-      <div class="panel-label">Elixir</div>
-      <div class="panel-value" id="profileScore">0</div>
-      <div class="panel-label">All-Time Total</div>
-      <div class="panel-value gold" id="profileTotal">0</div>
-      <button class="logout-btn" id="logoutMenu">[ Disconnect ]</button>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('resources')">Resources</div>
+      <div class="tab" onclick="switchTab('industrial')">Industrial</div>
     </div>
 
-    <button class="nav-btn" id="leaderboardBtn">[ Leaderboard ]</button>
-    <div class="panel hidden" id="leaderboardMenu">
-      <div class="panel-title">// Top 50 Rankings</div>
-      <div id="leaderboardPanel">
-        <p style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 12px 0;">Loading...</p>
+    <!-- RESOURCES -->
+    <div class="tab-content active" id="tab-resources">
+
+      <div class="market-item">
+        <div class="item-icon">🧪</div>
+        <div class="item-name">Essence x10</div>
+        <div class="item-desc">Small supply. Keeps any machine running for a short burst.</div>
+        <div class="item-farm-time">~ 5 min of farming</div>
+        <div class="item-price">Price: <span>1 Silver</span></div>
+        <button class="buy-btn" onclick="buy('essence', 10, 1)">Purchase</button>
       </div>
+
+      <div class="market-item">
+        <div class="item-icon">🧪</div>
+        <div class="item-name">Essence x50</div>
+        <div class="item-desc">Medium supply. Best value for early game machine upkeep.</div>
+        <div class="item-farm-time">~ 25 min of farming</div>
+        <div class="item-price">Price: <span>3 Silver</span></div>
+        <button class="buy-btn" onclick="buy('essence', 50, 3)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="item-icon">🧪</div>
+        <div class="item-name">Essence x200</div>
+        <div class="item-desc">Large reserve. Best value per unit for serious operators.</div>
+        <div class="item-farm-time">~ 1.7h of farming</div>
+        <div class="item-price">Price: <span>10 Silver</span></div>
+        <button class="buy-btn" onclick="buy('essence', 200, 10)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="item-icon">💎</div>
+        <div class="item-name">Crystal x1</div>
+        <div class="item-desc">One premium Gacha pull. The standard rate for collectors.</div>
+        <div class="item-farm-time">~ 1h of farming</div>
+        <div class="item-price">Price: <span>12 Silver</span></div>
+        <button class="buy-btn" onclick="buy('crystals', 1, 12)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="item-icon">💎</div>
+        <div class="item-name">Crystal x5</div>
+        <div class="item-desc">Bulk crystal pack. Slight discount for dedicated collectors.</div>
+        <div class="item-farm-time">~ 4.6h of farming</div>
+        <div class="item-price">Price: <span>55 Silver</span></div>
+        <button class="buy-btn" onclick="buy('crystals', 5, 55)">Purchase</button>
+      </div>
+
+      <div class="market-item">
+        <div class="item-icon">🔩</div>
+        <div class="item-name">Fragments x5</div>
+        <div class="item-desc">Card upgrade material. Normally obtained from duplicates.</div>
+        <div class="item-farm-time">~ 20 min of farming</div>
+        <div class="item-price">Price: <span>4 Silver</span></div>
+        <button class="buy-btn" onclick="buy('fragments', 5, 4)">Purchase</button>
+      </div>
+
     </div>
-  </div>
 
-  <div class="layout" id="layout">
-    <div class="main-card">
-      <div class="corner corner-tl"></div>
-      <div class="corner corner-tr"></div>
-      <div class="corner corner-bl"></div>
-      <div class="corner corner-br"></div>
+    <!-- INDUSTRIAL -->
+    <div class="tab-content" id="tab-industrial">
 
-      <div class="score-block">
-        <div class="score-label">// Elixir</div>
-        <div class="score-value" id="score">0</div>
-        <div class="score-divider"></div>
-        <div class="score-total">ALL-TIME : <span id="totalEver">0</span></div>
-      </div>
-
-      <div class="vial-wrapper" id="clickBtn">
-        <div class="vial-container">
-          <svg class="vial-svg" viewBox="0 0 400 80" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <clipPath id="vialClip">
-                <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"/>
-              </clipPath>
-              <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#7c3aed"/>
-                <stop offset="100%" stop-color="#3b0764"/>
-              </linearGradient>
-              <linearGradient id="glassShine" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="rgba(255,255,255,0.07)"/>
-                <stop offset="40%" stop-color="rgba(255,255,255,0.02)"/>
-                <stop offset="100%" stop-color="rgba(0,0,0,0.25)"/>
-              </linearGradient>
-            </defs>
-            <g clip-path="url(#vialClip)">
-              <rect id="vialLiquid" x="0" y="80" width="400" height="80" fill="url(#liquidGrad)"/>
-              <g id="vialWave1">
-                <ellipse cx="100" cy="0" rx="200" ry="10" fill="#7c3aed"/>
-                <ellipse cx="300" cy="0" rx="200" ry="10" fill="#7c3aed"/>
-              </g>
-              <g id="vialWave2">
-                <ellipse cx="100" cy="0" rx="200" ry="8" fill="#9d5fff"/>
-                <ellipse cx="300" cy="0" rx="200" ry="8" fill="#9d5fff"/>
-              </g>
-            </g>
-            <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"
-              fill="none" stroke="#3a5a7a" stroke-width="1.5"/>
-            <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"
-              fill="url(#glassShine)"/>
-            <path d="M30,14 L330,14 Q346,14 354,24 L360,32"
-              fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="3" stroke-linecap="round"/>
-            <line x1="80"  y1="64" x2="80"  y2="56" stroke="rgba(74,158,255,0.35)" stroke-width="1"/>
-            <line x1="160" y1="64" x2="160" y2="59" stroke="rgba(74,158,255,0.2)"  stroke-width="1"/>
-            <line x1="240" y1="64" x2="240" y2="56" stroke="rgba(74,158,255,0.35)" stroke-width="1"/>
-            <line x1="320" y1="64" x2="320" y2="59" stroke="rgba(74,158,255,0.2)"  stroke-width="1"/>
-          </svg>
+      <div class="market-item" id="machine-card-1">
+        <div class="machine-tier" id="tier-badge-1">TIER I</div>
+        <div class="item-icon">⚙️</div>
+        <div class="item-name">Machine I</div>
+        <div class="item-desc">Entry-level Elixir generator. Your first step into automation.</div>
+        <div class="machine-stats">
+          <div class="stat">Output: <span>~17 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">0.2 Essence/min</span></div>
+          <div class="stat">Net: <span class="net">+800 Elixir/h</span></div>
         </div>
-        <div class="vial-label" id="vialLabel">Execute</div>
+        <div class="item-farm-time">Purchase cost: ~1.25h of farming</div>
+        <div class="item-price" id="price-display-1">Price: <span>15 Silver</span></div>
+        <div id="machine-btn-1"></div>
       </div>
 
-      <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px;">
-        <div class="score-label" style="margin-bottom: 10px;">// Sell Elixir</div>
-        <div class="sell-input-row">
-          <input class="sell-input" type="number" id="sellAmount" placeholder="Amount..." min="100" step="100"/>
-          <button class="sell-confirm-btn" id="sellBtn">Sell</button>
+      <div class="market-item" id="machine-card-2">
+        <div class="machine-tier" id="tier-badge-2">TIER II</div>
+        <div class="item-icon">🔧</div>
+        <div class="item-name">Machine II</div>
+        <div class="item-desc">Advanced generator. Upgrade from Machine I for better returns.</div>
+        <div class="machine-stats">
+          <div class="stat">Output: <span>~20 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">0.5 Essence/min</span></div>
+          <div class="stat">Net: <span class="net">+900 Elixir/h</span></div>
         </div>
-        <div class="sell-preview" id="sellPreview">100 Elixir = 1 Silver</div>
+        <div class="item-farm-time">Upgrade cost: ~3.75h of farming</div>
+        <div class="item-price" id="price-display-2">Upgrade price: <span>45 Silver</span></div>
+        <div id="machine-btn-2"></div>
+      </div>
+
+      <div class="market-item" id="machine-card-3">
+        <div class="machine-tier" id="tier-badge-3">TIER III</div>
+        <div class="item-icon">🏭</div>
+        <div class="item-name">Machine III</div>
+        <div class="item-desc">Industrial synthesis. Requires Machine II to unlock.</div>
+        <div class="machine-stats">
+          <div class="stat">Output: <span>~27 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">1 Essence/min</span></div>
+          <div class="stat">Net: <span class="net">+1000 Elixir/h</span></div>
+        </div>
+        <div class="item-farm-time">Upgrade cost: ~12.5h of farming</div>
+        <div class="item-price" id="price-display-3">Upgrade price: <span>150 Silver</span></div>
+        <div id="machine-btn-3"></div>
+      </div>
+
+      <div class="market-item" id="machine-card-4">
+        <div class="machine-tier" id="tier-badge-4">TIER IV</div>
+        <div class="item-icon">🚀</div>
+        <div class="item-name">Machine IV</div>
+        <div class="item-desc">Maximum efficiency reactor. End-game automation. Requires Machine III.</div>
+        <div class="machine-stats">
+          <div class="stat">Output: <span>~36 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">2 Essence/min</span></div>
+          <div class="stat">Net: <span class="net">+1200 Elixir/h</span></div>
+        </div>
+        <div class="item-farm-time">Upgrade cost: ~41.7h of farming</div>
+        <div class="item-price" id="price-display-4">Upgrade price: <span>500 Silver</span></div>
+        <div id="machine-btn-4"></div>
       </div>
 
     </div>
@@ -699,34 +533,21 @@
       'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
     )
 
-    const ELIXIR_TO_SILVER = 100 // 100 Elixir = 1 Silver
-    const CRYSTAL_CHANCE = 0.001
-    const COOLDOWN = 3000
+    // Machine tier = 0 means no machine, 1-4 = tier owned
+    // Player can only go up, never down
+    const MACHINES = {
+      1: { price: 15,  label: 'Purchase', isUpgrade: false },
+      2: { price: 45,  label: 'Upgrade',  isUpgrade: true  },
+      3: { price: 150, label: 'Upgrade',  isUpgrade: true  },
+      4: { price: 500, label: 'Upgrade',  isUpgrade: true  }
+    }
 
-    let elixir = 0
-    let totalEver = 0
-    let silver = 0
-    let essence = 0
-    let crystals = 0
-    let fragments = 0
-    let username = 'Player'
+    let silver = 0, essence = 0, crystals = 0, fragments = 0, elixir = 0
+    let machineTier = 0 // 0 = none, 1-4 = current tier
     let userId = null
     let saveTimeout = null
-    let onCooldown = false
 
     function fmt(n) { return Math.floor(n).toLocaleString() }
-
-    function updateDisplay() {
-      document.getElementById("score").textContent = fmt(elixir)
-      document.getElementById("totalEver").textContent = fmt(totalEver)
-      document.getElementById("profileScore").textContent = fmt(elixir)
-      document.getElementById("profileTotal").textContent = fmt(totalEver)
-      document.getElementById("resElixir").textContent = fmt(elixir)
-      document.getElementById("resSilver").textContent = silver.toFixed(2)
-      document.getElementById("resEssence").textContent = fmt(essence)
-      document.getElementById("resCrystals").textContent = fmt(crystals)
-      document.getElementById("resFragments").textContent = fmt(fragments)
-    }
 
     function showToast(msg, type = '') {
       const t = document.getElementById("toast")
@@ -735,75 +556,116 @@
       setTimeout(() => t.className = `toast ${type}`, 2500)
     }
 
-    function setLiquidLevel(percent) {
-      const liquid = document.getElementById("vialLiquid")
-      const wave1 = document.getElementById("vialWave1")
-      const wave2 = document.getElementById("vialWave2")
-      const yPos = 80 - (percent * 85)
-      liquid.setAttribute("y", yPos)
-      wave1.setAttribute("transform", `translate(0, ${yPos})`)
-      wave2.setAttribute("transform", `translate(0, ${yPos - 5})`)
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', ['resources', 'industrial'][i] === tab)
+      })
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'))
+      document.getElementById(`tab-${tab}`).classList.add('active')
     }
 
-    function startCooldown() {
-      onCooldown = true
-      document.getElementById("clickBtn").classList.add("on-cooldown")
-      document.getElementById("vialLabel").textContent = "Recharging..."
+    function renderMachines() {
+      for (let tier = 1; tier <= 4; tier++) {
+        const card = document.getElementById(`machine-card-${tier}`)
+        const btn = document.getElementById(`machine-btn-${tier}`)
+        const badge = document.getElementById(`tier-badge-${tier}`)
 
-      const drainStart = performance.now()
+        card.classList.remove('locked', 'owned')
+        badge.classList.remove('active-tier')
 
-      function drainAnimate(now) {
-        const progress = Math.min((now - drainStart) / 400, 1)
-        setLiquidLevel(1 - (1 - Math.pow(1 - progress, 3)))
-        if (progress < 1) requestAnimationFrame(drainAnimate)
-        else startRefill()
-      }
-
-      requestAnimationFrame(drainAnimate)
-    }
-
-    function startRefill() {
-      const refillStart = performance.now()
-
-      function refillAnimate(now) {
-        const progress = Math.min((now - refillStart) / COOLDOWN, 1)
-        setLiquidLevel(progress * 1.05)
-        if (progress < 1) {
-          requestAnimationFrame(refillAnimate)
+        if (tier < machineTier) {
+          // Already owned and upgraded past — show as owned/inactive
+          card.classList.add('owned')
+          badge.classList.add('active-tier')
+          btn.innerHTML = `<div class="owned-badge">✓ Upgraded</div>`
+        } else if (tier === machineTier) {
+          // Currently owned tier
+          card.classList.add('owned')
+          badge.classList.add('active-tier')
+          if (tier < 4) {
+            btn.innerHTML = `<button class="upgrade-btn" onclick="buyMachine(${tier + 1})">⬆ Upgrade to Tier ${tier + 1}</button>`
+          } else {
+            btn.innerHTML = `<div class="owned-badge">✓ Max Tier Reached</div>`
+          }
+        } else if (tier === machineTier + 1) {
+          // Next available tier
+          if (tier === 1) {
+            btn.innerHTML = `<button class="buy-btn" onclick="buyMachine(1)">Purchase</button>`
+          } else {
+            btn.innerHTML = `<button class="upgrade-btn" onclick="buyMachine(${tier})">⬆ Upgrade</button>`
+          }
         } else {
-          onCooldown = false
-          document.getElementById("clickBtn").classList.remove("on-cooldown")
-          document.getElementById("vialLabel").textContent = "Execute"
-          setLiquidLevel(1.05)
+          // Locked — too far ahead
+          card.classList.add('locked')
+          btn.innerHTML = `<div class="owned-badge" style="color:var(--text-dim);border-color:var(--border)">🔒 Locked</div>`
         }
       }
-
-      requestAnimationFrame(refillAnimate)
     }
 
-    async function saveScore() {
+    function updateDisplay() {
+      document.getElementById("resElixir").textContent = fmt(elixir)
+      document.getElementById("resSilver").textContent = silver.toFixed(2)
+      document.getElementById("resEssence").textContent = fmt(essence)
+      document.getElementById("resCrystals").textContent = fmt(crystals)
+      document.getElementById("resFragments").textContent = fmt(fragments)
+      renderMachines()
+    }
+
+    async function saveData() {
       if (!userId) return
       await sb.from("player_scores").update({
-        clicks: totalEver,
-        total_clicks_ever: totalEver,
-        elixir, silver, essence, crystals, fragments,
+        silver, essence, crystals, fragments,
         updated_at: new Date()
       }).eq("user_id", userId)
     }
 
-    async function loadLeaderboard() {
-      const panel = document.getElementById("leaderboardPanel")
-      panel.innerHTML = '<p style="font-family: \'Share Tech Mono\', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 12px 0;">Loading...</p>'
-      const { data } = await sb.from("player_scores").select("username, total_clicks_ever").order("total_clicks_ever", { ascending: false }).limit(50)
-      if (!data || data.length === 0) { panel.innerHTML = '<p style="font-family: \'Share Tech Mono\', monospace; font-size: 11px; color: var(--text-dim); text-align: center; padding: 12px 0;">No data</p>'; return }
-      const medals = ["🥇", "🥈", "🥉"]
-      panel.innerHTML = data.map((j, i) => `
-        <div class="lb-row ${j.username === username ? 'me-row' : ''}">
-          <span class="lb-rank">${medals[i] || '#' + (i + 1)}</span>
-          <span class="lb-name ${j.username === username ? 'me' : ''}">${j.username}</span>
-          <span class="lb-score">${fmt(j.total_clicks_ever)}</span>
-        </div>
-      `).join("")
+    async function saveMachine() {
+      if (!userId) return
+      const { data: existing } = await sb.from("player_machines")
+        .select("id").eq("user_id", userId).single()
+
+      if (!existing) {
+        await sb.from("player_machines").insert({
+          user_id: userId,
+          machine1: machineTier >= 1 ? 1 : 0,
+          machine2: machineTier >= 2 ? 1 : 0,
+          machine3: machineTier >= 3 ? 1 : 0,
+          machine4: machineTier >= 4 ? 1 : 0
+        })
+      } else {
+        await sb.from("player_machines").update({
+          machine1: machineTier >= 1 ? 1 : 0,
+          machine2: machineTier >= 2 ? 1 : 0,
+          machine3: machineTier >= 3 ? 1 : 0,
+          machine4: machineTier >= 4 ? 1 : 0
+        }).eq("user_id", userId)
+      }
+    }
+
+    function buy(resource, amount, cost) {
+      if (silver < cost) { showToast("Not enough Silver", "error"); return }
+      silver -= cost
+      if (resource === 'essence') essence += amount
+      if (resource === 'crystals') crystals += amount
+      if (resource === 'fragments') fragments += amount
+      updateDisplay()
+      showToast(`Purchased ${amount} ${resource}!`, "success")
+      if (saveTimeout) clearTimeout(saveTimeout)
+      saveTimeout = setTimeout(saveData, 3000)
+    }
+
+    async function buyMachine(tier) {
+      // Can only buy the next tier
+      if (tier !== machineTier + 1) { showToast("Invalid upgrade path", "error"); return }
+      const cost = MACHINES[tier].price
+      if (silver < cost) { showToast("Not enough Silver", "error"); return }
+
+      silver -= cost
+      machineTier = tier
+      updateDisplay()
+      await saveMachine()
+      await saveData()
+      showToast(`Machine ${tier} ${tier === 1 ? 'purchased' : 'upgraded'}!`, "success")
     }
 
     async function load() {
@@ -812,96 +674,33 @@
       userId = user.id
 
       const { data } = await sb.from("player_scores")
-        .select("clicks, total_clicks_ever, username, elixir, silver, essence, crystals, fragments")
+        .select("username, elixir, silver, essence, crystals, fragments")
         .eq("user_id", userId).single()
 
-      if (!data) {
-        const urlParams = new URLSearchParams(window.location.search)
-        const pseudoFromUrl = urlParams.get('pseudo')
-        const defaultName = pseudoFromUrl || user.email.split("@")[0]
-        await sb.from("player_scores").insert({
-          user_id: userId, clicks: 0, total_clicks_ever: 0,
-          username: defaultName, elixir: 0, silver: 0,
-          essence: 0, crystals: 0, fragments: 0
-        })
-        username = defaultName
-      } else {
+      if (data) {
         elixir = data.elixir || 0
-        totalEver = data.total_clicks_ever || 0
         silver = data.silver || 0
         essence = data.essence || 0
         crystals = data.crystals || 0
         fragments = data.fragments || 0
-        username = data.username || 'Player'
+        document.getElementById("headerUsername").textContent = data.username || 'Player'
       }
 
-      document.getElementById("profileName").textContent = username
-      document.getElementById("headerUsername").textContent = username
-      updateDisplay()
-      setLiquidLevel(1.05)
-    }
+      const { data: machineData } = await sb.from("player_machines")
+        .select("*").eq("user_id", userId).single()
 
-    document.getElementById("clickBtn").onclick = function () {
-      if (onCooldown) return
-      elixir++
-      totalEver++
-      if (Math.random() < CRYSTAL_CHANCE) {
-        crystals++
-        showToast("✨ Crystal obtained!", "success")
+      if (machineData) {
+        // Determine current tier from highest owned
+        if (machineData.machine4) machineTier = 4
+        else if (machineData.machine3) machineTier = 3
+        else if (machineData.machine2) machineTier = 2
+        else if (machineData.machine1) machineTier = 1
+        else machineTier = 0
       }
+
       updateDisplay()
-      startCooldown()
-      if (saveTimeout) clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(saveScore, 5000)
     }
 
-    document.getElementById("sellAmount").oninput = function () {
-      const amount = parseInt(this.value) || 0
-      const earned = (amount / ELIXIR_TO_SILVER).toFixed(4)
-      document.getElementById("sellPreview").textContent = `${fmt(amount)} Elixir = ${earned} Silver`
-    }
-
-    document.getElementById("sellBtn").onclick = function () {
-      const amount = parseInt(document.getElementById("sellAmount").value) || 0
-      if (amount < 100) { showToast("Minimum 100 Elixir", "error"); return }
-      if (amount > elixir) { showToast("Not enough Elixir", "error"); return }
-      const earned = amount / ELIXIR_TO_SILVER
-      elixir -= amount
-      silver += earned
-      updateDisplay()
-      showToast(`Sold ${fmt(amount)} Elixir for ${earned.toFixed(2)} Silver`, "success")
-      if (saveTimeout) clearTimeout(saveTimeout)
-      saveTimeout = setTimeout(saveScore, 5000)
-    }
-
-    document.getElementById("profileBtn").onclick = () => {
-      document.getElementById("profileMenu").classList.toggle("hidden")
-      document.getElementById("leaderboardMenu").classList.add("hidden")
-    }
-
-    document.getElementById("leaderboardBtn").onclick = () => {
-      const menu = document.getElementById("leaderboardMenu")
-      menu.classList.toggle("hidden")
-      document.getElementById("profileMenu").classList.add("hidden")
-      if (!menu.classList.contains("hidden")) loadLeaderboard()
-    }
-
-    document.getElementById("logoutMenu").onclick = async function () {
-      await saveScore()
-      await sb.auth.signOut()
-      location.href = "index.html"
-    }
-
-    document.getElementById("sidebarBtn").onclick = () => {
-      const sidebar = document.getElementById("sidebar")
-      const layout = document.getElementById("layout")
-      const btn = document.getElementById("sidebarBtn")
-      sidebar.classList.toggle("open")
-      layout.classList.toggle("sidebar-open")
-      btn.classList.toggle("active")
-    }
-
-    window.addEventListener("beforeunload", saveScore)
     load()
   </script>
 </body>
