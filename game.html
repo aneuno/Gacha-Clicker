@@ -88,6 +88,11 @@
       <span>Clique.</span>
       <div id="liquidFill"></div>
     </button>
+
+    <!-- Carte Strelitzia -->
+    <div id="carte-strelitzia" class="text-center mt-4">
+      <p class="text-gray-400 text-sm">Chargement de la carte...</p>
+    </div>
   </div>
 
   <script>
@@ -133,6 +138,24 @@
       }, 450 + COOLDOWN)
     }
 
+    async function loadCarte() {
+      const { data } = await sb
+        .from("cartes")
+        .select("*")
+        .eq("id", "strelitzia")
+        .single()
+
+      if (data) {
+        document.getElementById("carte-strelitzia").innerHTML = `
+          <div class="bg-gray-700 rounded-xl p-4 inline-block">
+            <img src="${data.image_url}" class="w-48 rounded-lg mb-2 mx-auto">
+            <p class="font-bold text-lg">${data.nom}</p>
+            <p class="text-yellow-400 text-sm">Rareté ${data.rarete}</p>
+          </div>
+        `
+      }
+    }
+
     async function load() {
       const { data: { user } } = await sb.auth.getUser()
       if (!user) { window.location.href = "index.html"; return }
@@ -171,6 +194,8 @@
       const fill = document.getElementById("liquidFill")
       fill.style.transition = "none"
       fill.style.height = "110%"
+
+      loadCarte()
     }
 
     async function saveScore() {
