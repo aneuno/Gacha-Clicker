@@ -22,6 +22,7 @@
       --text-dim: #6a8aaa;
       --text-bright: #e8f4ff;
       --gold: #c8a84b;
+      --sidebar-width: 240px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -46,17 +47,6 @@
       z-index: 0;
     }
 
-    .layout {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
     /* HEADER */
     .header {
       position: fixed;
@@ -67,7 +57,7 @@
       display: flex;
       align-items: center;
       padding: 0 24px;
-      z-index: 100;
+      z-index: 200;
     }
 
     .header::after {
@@ -87,6 +77,27 @@
       text-transform: uppercase;
     }
 
+    .header-menu-btn {
+      margin-left: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      color: var(--text-dim);
+      padding: 5px 12px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+
+    .header-menu-btn:hover,
+    .header-menu-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
     .header-line {
       flex: 1;
       height: 1px;
@@ -102,6 +113,135 @@
       background: var(--surface2);
       border: 1px solid var(--border-bright);
       padding: 4px 12px;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed;
+      top: 52px;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: #0a0f15;
+      border-right: 1px solid var(--border-bright);
+      z-index: 150;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--accent), transparent 60%);
+      opacity: 0.4;
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-section {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-section:last-child {
+      border-bottom: none;
+    }
+
+    .sidebar-section-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      padding: 0 16px 10px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-left: 2px solid transparent;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .sidebar-item:hover {
+      background: var(--surface2);
+      color: var(--text);
+      border-left-color: var(--accent);
+    }
+
+    .sidebar-item.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+
+    .sidebar-item.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .sidebar-item.disabled:hover {
+      background: transparent;
+      color: var(--text-dim);
+      border-left-color: transparent;
+    }
+
+    .sidebar-icon {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .sidebar-badge {
+      margin-left: auto;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 9px;
+      padding: 1px 5px;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .soon-tag {
+      margin-left: auto;
+      font-size: 8px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      opacity: 0.6;
+    }
+
+    /* LAYOUT */
+    .layout {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 52px;
+    }
+
+    .layout.sidebar-open {
+      padding-left: calc(var(--sidebar-width) + 24px);
     }
 
     /* TOP RIGHT */
@@ -146,9 +286,7 @@
       background: var(--accent-dim);
     }
 
-    .nav-btn:hover::before {
-      opacity: 1;
-    }
+    .nav-btn:hover::before { opacity: 1; }
 
     /* PANELS */
     .panel {
@@ -227,7 +365,6 @@
       width: 100%;
       max-width: 460px;
       position: relative;
-      margin-top: 52px;
     }
 
     .main-card::before {
@@ -293,7 +430,7 @@
       letter-spacing: 5px;
       color: var(--text);
       text-transform: uppercase;
-      transition: color 0.2s;
+      transition: all 0.2s;
       background: var(--surface2);
       border: 1px solid var(--border-bright);
       padding: 7px 24px;
@@ -306,9 +443,7 @@
       background: rgba(124, 58, 237, 0.1);
     }
 
-    .vial-wrapper.on-cooldown {
-      cursor: not-allowed;
-    }
+    .vial-wrapper.on-cooldown { cursor: not-allowed; }
 
     .vial-wrapper.on-cooldown .vial-label {
       color: var(--text-dim);
@@ -376,12 +511,65 @@
 </head>
 <body>
 
+  <!-- HEADER -->
   <div class="header">
     <span class="header-logo">Gacha Clicker</span>
+    <button class="header-menu-btn" id="sidebarBtn">≡ Menu</button>
     <div class="header-line"></div>
     <span class="header-user" id="headerUsername">—</span>
   </div>
 
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">// Main</div>
+      <div class="sidebar-item active">
+        <span class="sidebar-icon">⚗️</span> Synthesizer
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">// Collection</div>
+      <div class="sidebar-item disabled">
+        <span class="sidebar-icon">🃏</span> Inventory
+        <span class="soon-tag">Soon</span>
+      </div>
+      <div class="sidebar-item disabled">
+        <span class="sidebar-icon">✨</span> Gacha
+        <span class="soon-tag">Soon</span>
+      </div>
+      <div class="sidebar-item disabled">
+        <span class="sidebar-icon">📦</span> Boosters
+        <span class="soon-tag">Soon</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">// Progression</div>
+      <div class="sidebar-item disabled">
+        <span class="sidebar-icon">📜</span> Quests
+        <span class="soon-tag">Soon</span>
+      </div>
+      <div class="sidebar-item disabled">
+        <span class="sidebar-icon">⚡</span> Upgrades
+        <span class="soon-tag">Soon</span>
+      </div>
+      <div class="sidebar-item disabled">
+        <span class="sidebar-icon">🏆</span> Achievements
+        <span class="soon-tag">Soon</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">// Social</div>
+      <div class="sidebar-item disabled">
+        <span class="sidebar-icon">👥</span> Leaderboard
+        <span class="soon-tag">Soon</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP RIGHT -->
   <div class="top-right">
     <button class="nav-btn" id="profileBtn">[ Profile ]</button>
     <div class="panel hidden" id="profileMenu">
@@ -404,7 +592,8 @@
     </div>
   </div>
 
-  <div class="layout">
+  <!-- MAIN -->
+  <div class="layout" id="layout">
     <div class="main-card">
       <div class="corner corner-tl"></div>
       <div class="corner corner-tr"></div>
@@ -448,19 +637,12 @@
               </g>
             </g>
 
-            <!-- Vial border -->
             <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"
               fill="none" stroke="#3a5a7a" stroke-width="1.5"/>
-
-            <!-- Glass shine -->
             <path d="M20,8 L340,8 Q360,8 370,20 L380,35 Q386,40 386,40 Q386,40 380,45 L370,60 Q360,72 340,72 L20,72 Q8,72 8,60 L8,20 Q8,8 20,8 Z"
               fill="url(#glassShine)"/>
-
-            <!-- Highlight -->
             <path d="M30,14 L330,14 Q346,14 354,24 L360,32"
               fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="3" stroke-linecap="round"/>
-
-            <!-- Graduation marks -->
             <line x1="80"  y1="64" x2="80"  y2="56" stroke="rgba(74,158,255,0.35)" stroke-width="1"/>
             <line x1="160" y1="64" x2="160" y2="59" stroke="rgba(74,158,255,0.2)"  stroke-width="1"/>
             <line x1="240" y1="64" x2="240" y2="56" stroke="rgba(74,158,255,0.35)" stroke-width="1"/>
@@ -469,7 +651,6 @@
         </div>
         <div class="vial-label" id="vialLabel">Execute</div>
       </div>
-
     </div>
   </div>
 
@@ -513,11 +694,9 @@
       label.textContent = "Recharging..."
 
       const drainStart = performance.now()
-      const drainDuration = 400
 
       function drainAnimate(now) {
-        const elapsed = now - drainStart
-        const progress = Math.min(elapsed / drainDuration, 1)
+        const progress = Math.min((now - drainStart) / 400, 1)
         const eased = 1 - Math.pow(1 - progress, 3)
         setLiquidLevel(1 - eased)
         if (progress < 1) requestAnimationFrame(drainAnimate)
@@ -531,8 +710,7 @@
       const refillStart = performance.now()
 
       function refillAnimate(now) {
-        const elapsed = now - refillStart
-        const progress = Math.min(elapsed / COOLDOWN, 1)
+        const progress = Math.min((now - refillStart) / COOLDOWN, 1)
         setLiquidLevel(progress * 1.05)
         if (progress < 1) {
           requestAnimationFrame(refillAnimate)
@@ -618,6 +796,16 @@
         .from("player_scores")
         .update({ clicks, total_clicks_ever: totalEver, updated_at: new Date() })
         .eq("user_id", userId)
+    }
+
+    // Sidebar toggle
+    document.getElementById("sidebarBtn").onclick = () => {
+      const sidebar = document.getElementById("sidebar")
+      const layout = document.getElementById("layout")
+      const btn = document.getElementById("sidebarBtn")
+      sidebar.classList.toggle("open")
+      layout.classList.toggle("sidebar-open")
+      btn.classList.toggle("active")
     }
 
     document.getElementById("clickBtn").onclick = function () {
