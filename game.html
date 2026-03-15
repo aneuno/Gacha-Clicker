@@ -1,151 +1,123 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gacha Clicker - Jeu</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gacha Clicker - Jeu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body class="bg-gray-900 text-white min-h-screen p-6">
+  <h1 class="text-4xl font-bold text-center mb-8">Gacha Clicker</h1>
 
-<h1 class="text-4xl font-bold text-center mb-8">Gacha Clicker</h1>
-
-<div class="absolute top-6 right-6">
-  <button id="profileBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
-    Profil
-  </button>
-
-  <div id="profileMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg mt-2 text-white w-48">
-    <p><strong>Score actuel :</strong> <span id="profileScore">0</span></p>
-    <button id="logoutMenu" class="mt-3 w-full py-2 bg-red-600 rounded hover:bg-red-700">
-      Déconnexion
-    </button>
+  <div class="absolute top-6 right-6">
+    <button id="profileBtn" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">Profil</button>
+    <div id="profileMenu" class="hidden bg-gray-800 p-4 rounded shadow-lg mt-2 text-white w-48">
+      <p><strong>Score actuel :</strong> <span id="profileScore">0</span></p>
+      <button id="logoutMenu" class="mt-3 w-full py-2 bg-red-600 rounded hover:bg-red-700">Déconnexion</button>
+    </div>
   </div>
-</div>
 
-<div class="max-w-md mx-auto bg-gray-800 p-8 rounded-xl">
+  <div class="max-w-md mx-auto bg-gray-800 p-8 rounded-xl">
+    <p id="welcome" class="text-xl mb-6 text-center">Chargement...</p>
+    <div class="text-2xl mb-4">Score : <span id="score">0</span></div>
+    <button id="click" class="w-full py-6 bg-purple-700 rounded-xl text-3xl font-bold mb-6 hover:bg-purple-600">Clique.</button>
+    <button id="logout" class="w-full py-3 bg-red-600 rounded hover:bg-red-700">Déconnexion</button>
+  </div>
 
-<p id="welcome" class="text-xl mb-6 text-center">Chargement...</p>
+  <script>
+    const supabaseClient = supabase.createClient(
+      'https://zbyvhlhnjefpodjdnfdy.supabase.co',
+      'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
+    )
 
-<div class="text-2xl mb-4">
-Score : <span id="score">0</span>
-</div>
+    let clicks = 0
+    let userId = null
+    let saveTimeout = null
 
-<button id="click" class="w-full py-6 bg-purple-700 rounded-xl text-3xl font-bold mb-6 hover:bg-purple-600">
-Clique.
-</button>
+    // ⬇️ Change ici si nom différent
+    const TABLE = 'users data'
+    const COLUMN = 'click'
 
-<button id="logout" class="w-full py-3 bg-red-600 rounded hover:bg-red-700">
-Déconnexion
-</button>
+    function updateDisplay() {
+      document.getElementById("score").textContent = clicks
+      document.getElementById("profileScore").textContent = clicks
+    }
 
-</div>
+    async function load() {
+      const { data } = await supabaseClient.auth.getUser()
+      const user = data?.user
 
-<script>
+      if (!user) {
+        window.location.href = "index.html"
+        return
+      }
 
-const supabaseClient = supabase.createClient(
-  'https://zbyvhlhnjefpodjdnfdy.supabase.co',
-  'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
-)
+      userId = user.id
 
-let clicks = 0
-let lastSavedClicks = 0
-let userId = null
-let saveTimeout = null 
+      // Récupère le score du joueur connecté
+      const { data: row, error } = await supabaseClient
+        .from(TABLE)
+        .select(COLUMN)
+        .eq("user_id", userId)
+        .single()
 
-async function load(){
+      if (error || !row) {
+        // Première connexion : crée la ligne
+        await supabaseClient
+          .from(TABLE)
+          .insert({ user_id: userId, [COLUMN]: 0 })
+        clicks = 0
+      } else {
+        clicks = row[COLUMN] || 0
+      }
 
-  const { data } = await supabaseClient.auth.getUser()
-  const user = data?.user
+      updateDisplay()
+      document.getElementById("welcome").textContent = "Salut Joueur !"
+    }
 
-  if(!user){
-    window.location.href = "index.html"
-    return
-  }
+    async function saveScore() {
+      if (!userId) return
 
-  userId = user.id
+      const { error } = await supabaseClient
+        .from(TABLE)
+        .update({ [COLUMN]: clicks })
+        .eq("user_id", userId)
 
-  let { data: progress } = await supabaseClient
-    .from("player_progress")
-    .select("click_count,total_score,gacha_points,pity_counter,last_click")
-    .eq("user_id", userId)
-    .single()
+      if (error) console.error("Erreur sauvegarde :", error)
+    }
 
-  if(!progress){
-    await supabaseClient
-      .from("player_progress")
-      .insert({
-        user_id: userId,
-        click_count: 0,
-        total_score: 0,
-        gacha_points: 0,
-        pity_counter: 0,
-        last_click: new Date(),
-        updated_at: new Date()
-      })
-    clicks = 0
-  } else {
-    clicks = progress.click_count || 0
-  }
+    // Sauvegarde aussi quand le joueur quitte la page
+    window.addEventListener("beforeunload", () => {
+      saveScore()
+    })
 
-  lastSavedClicks = clicks
+    document.getElementById("profileBtn").onclick = function () {
+      document.getElementById("profileMenu").classList.toggle("hidden")
+    }
 
-  document.getElementById("score").textContent = clicks
-  document.getElementById("profileScore").textContent = clicks
-  document.getElementById("welcome").textContent = "Salut Joueur !"
-}
+    document.getElementById("logoutMenu").onclick = async function () {
+      await saveScore()
+      await supabaseClient.auth.signOut()
+      location.href = "index.html"
+    }
 
-document.getElementById("profileBtn").onclick = function() {
-  const menu = document.getElementById("profileMenu");
-  menu.classList.toggle("hidden");
-}
+    document.getElementById("logout").onclick = async function () {
+      await saveScore()
+      await supabaseClient.auth.signOut()
+      location.href = "index.html"
+    }
 
-document.getElementById("logoutMenu").onclick = function() {
-  supabaseClient.auth.signOut().then(()=>{
-    location.href = "index.html";
-  })
-}
+    document.getElementById("click").onclick = function () {
+      clicks++
+      updateDisplay()
 
-document.getElementById("logout").onclick = function(){
-  supabaseClient.auth.signOut().then(()=>{
-    location.href = "index.html"
-  })
-}
+      // Sauvegarde 2 secondes après le dernier clic
+      if (saveTimeout) clearTimeout(saveTimeout)
+      saveTimeout = setTimeout(saveScore, 2000)
+    }
 
-async function saveScore(){
-  const newClicks = clicks - lastSavedClicks
-  if(newClicks > 0){
-    await supabaseClient
-      .from("player_progress")
-      .update({
-        click_count: clicks,
-        total_score: supabaseClient.raw(`total_score + ${newClicks}`),
-        last_click: new Date(),
-        updated_at: new Date()
-      })
-      .eq("user_id", userId)
-
-    lastSavedClicks = clicks
-  }
-}
-
-document.getElementById("click").onclick = function(){
-
-  clicks++
-  document.getElementById("score").textContent = clicks
-  document.getElementById("profileScore").textContent = clicks
-
-  if(saveTimeout) clearTimeout(saveTimeout)
-  saveTimeout = setTimeout(saveScore, 2000) 
-}
-
-load()
-
-</script>
-
+    load()
+  </script>
 </body>
 </html>
