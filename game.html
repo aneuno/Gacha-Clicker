@@ -119,33 +119,33 @@
 
       btn.classList.add("on-cooldown")
 
-      const start = Date.now()
-
-      function animate() {
-        const elapsed = Date.now() - start
-        const progress = Math.min(elapsed / COOLDOWN, 1)
-
-        // Commence à 0% et remonte à 100%
-        fill.style.height = `${progress * 100}%`
-
-        if (progress < 1) {
-          requestAnimationFrame(animate)
-        } else {
-          // Cooldown terminé : plein à 100%
-          onCooldown = false
-          btn.classList.remove("on-cooldown")
-          fill.style.height = "100%"
-        }
-      }
-
-      // Vide instantanément au clic
-      fill.style.transition = "none"
+      // Vide avec animation fluide
+      fill.style.transition = "height 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
       fill.style.height = "0%"
 
-      // Petite pause pour que le vide soit visible avant de reremplir
+      // Attend la fin de la vidange puis reremplie progressivement
       setTimeout(() => {
+        fill.style.transition = "none"
+
+        const start = Date.now()
+
+        function animate() {
+          const elapsed = Date.now() - start
+          const progress = Math.min(elapsed / COOLDOWN, 1)
+
+          fill.style.height = `${progress * 100}%`
+
+          if (progress < 1) {
+            requestAnimationFrame(animate)
+          } else {
+            onCooldown = false
+            btn.classList.remove("on-cooldown")
+            fill.style.height = "100%"
+          }
+        }
+
         requestAnimationFrame(animate)
-      }, 150)
+      }, 450)
     }
 
     async function load() {
