@@ -103,7 +103,6 @@
       padding: 4px 12px;
     }
 
-    /* RESOURCES BAR */
     .resources-bar {
       position: fixed;
       top: 52px; left: 0; right: 0;
@@ -132,7 +131,6 @@
     .resource-value.essence { color: var(--green); }
     .resource-value.crystals { color: var(--pink); }
 
-    /* LAYOUT */
     .layout {
       position: relative;
       z-index: 1;
@@ -147,13 +145,20 @@
       letter-spacing: 4px;
       color: var(--text-dim);
       text-transform: uppercase;
-      margin-bottom: 32px;
+      margin-bottom: 8px;
     }
 
-    /* TABS */
+    .page-subtitle {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      opacity: 0.5;
+      margin-bottom: 28px;
+      letter-spacing: 1px;
+    }
+
     .tabs {
       display: flex;
-      gap: 0;
       margin-bottom: 32px;
       border-bottom: 1px solid var(--border-bright);
     }
@@ -177,7 +182,6 @@
     .tab-content { display: none; }
     .tab-content.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
 
-    /* MARKET ITEMS */
     .market-item {
       background: var(--surface);
       border: 1px solid var(--border-bright);
@@ -197,6 +201,20 @@
 
     .market-item:hover { border-color: var(--accent); }
 
+    .market-item.locked {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .market-item.owned {
+      border-color: var(--gold);
+    }
+
+    .market-item.owned::before {
+      background: linear-gradient(90deg, var(--gold), transparent);
+      opacity: 0.8;
+    }
+
     .item-icon { font-size: 28px; margin-bottom: 10px; }
 
     .item-name {
@@ -211,8 +229,17 @@
     .item-desc {
       font-size: 13px;
       color: var(--text-dim);
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       line-height: 1.4;
+    }
+
+    .item-farm-time {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      opacity: 0.6;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
     }
 
     .item-price {
@@ -240,9 +267,37 @@
     }
 
     .buy-btn:hover { background: rgba(74, 158, 255, 0.2); border-color: var(--accent); }
-    .buy-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    /* Machine items */
+    .upgrade-btn {
+      width: 100%;
+      padding: 9px;
+      background: rgba(200, 168, 75, 0.1);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+
+    .upgrade-btn:hover { background: rgba(200, 168, 75, 0.25); }
+
+    .owned-badge {
+      width: 100%;
+      padding: 9px;
+      background: rgba(200, 168, 75, 0.05);
+      border: 1px solid rgba(200, 168, 75, 0.3);
+      color: var(--gold);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
     .machine-tier {
       position: absolute;
       top: 10px; right: 10px;
@@ -255,10 +310,16 @@
       border: 1px solid var(--border);
     }
 
+    .machine-tier.active-tier {
+      color: var(--gold);
+      border-color: var(--gold);
+    }
+
     .machine-stats {
       display: flex;
       gap: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
     }
 
     .stat {
@@ -269,8 +330,8 @@
 
     .stat span { color: var(--green); }
     .stat span.cost { color: #ef9a4a; }
+    .stat span.net { color: var(--accent); }
 
-    /* TOAST */
     .toast {
       position: fixed;
       bottom: 24px;
@@ -331,119 +392,134 @@
   </div>
 
   <div class="layout">
-    <div class="page-title">// Market — Trade & Acquire Resources</div>
+    <div class="page-title">// Market</div>
+    <div class="page-subtitle">Base rate: ~12 Silver/hour · 1 Crystal pull ≈ 1 hour · Machines give net profit after Essence cost</div>
 
     <div class="tabs">
       <div class="tab active" onclick="switchTab('resources')">Resources</div>
       <div class="tab" onclick="switchTab('industrial')">Industrial</div>
     </div>
 
-    <!-- RESOURCES TAB -->
+    <!-- RESOURCES -->
     <div class="tab-content active" id="tab-resources">
 
       <div class="market-item">
         <div class="item-icon">🧪</div>
         <div class="item-name">Essence x10</div>
-        <div class="item-desc">Fuel for your machines. Small stock for early production.</div>
-        <div class="item-price">Price: <span>5 Silver</span></div>
-        <button class="buy-btn" onclick="buy('essence', 10, 5)">Purchase</button>
+        <div class="item-desc">Small supply. Keeps any machine running for a short burst.</div>
+        <div class="item-farm-time">~ 5 min of farming</div>
+        <div class="item-price">Price: <span>1 Silver</span></div>
+        <button class="buy-btn" onclick="buy('essence', 10, 1)">Purchase</button>
       </div>
 
       <div class="market-item">
         <div class="item-icon">🧪</div>
         <div class="item-name">Essence x50</div>
-        <div class="item-desc">A medium stock of Essence. Better value per unit.</div>
-        <div class="item-price">Price: <span>20 Silver</span></div>
-        <button class="buy-btn" onclick="buy('essence', 50, 20)">Purchase</button>
+        <div class="item-desc">Medium supply. Best value for early game machine upkeep.</div>
+        <div class="item-farm-time">~ 25 min of farming</div>
+        <div class="item-price">Price: <span>3 Silver</span></div>
+        <button class="buy-btn" onclick="buy('essence', 50, 3)">Purchase</button>
       </div>
 
       <div class="market-item">
         <div class="item-icon">🧪</div>
         <div class="item-name">Essence x200</div>
-        <div class="item-desc">Large Essence reserve. Best value for serious operators.</div>
-        <div class="item-price">Price: <span>70 Silver</span></div>
-        <button class="buy-btn" onclick="buy('essence', 200, 70)">Purchase</button>
+        <div class="item-desc">Large reserve. Best value per unit for serious operators.</div>
+        <div class="item-farm-time">~ 1.7h of farming</div>
+        <div class="item-price">Price: <span>10 Silver</span></div>
+        <button class="buy-btn" onclick="buy('essence', 200, 10)">Purchase</button>
       </div>
 
       <div class="market-item">
         <div class="item-icon">💎</div>
         <div class="item-name">Crystal x1</div>
-        <div class="item-desc">Rare crystal for premium Gacha pulls. Extremely valuable.</div>
-        <div class="item-price">Price: <span>50 Silver</span></div>
-        <button class="buy-btn" onclick="buy('crystals', 1, 50)">Purchase</button>
+        <div class="item-desc">One premium Gacha pull. The standard rate for collectors.</div>
+        <div class="item-farm-time">~ 1h of farming</div>
+        <div class="item-price">Price: <span>12 Silver</span></div>
+        <button class="buy-btn" onclick="buy('crystals', 1, 12)">Purchase</button>
       </div>
 
       <div class="market-item">
         <div class="item-icon">💎</div>
         <div class="item-name">Crystal x5</div>
-        <div class="item-desc">A pack of crystals. Significant investment for dedicated collectors.</div>
-        <div class="item-price">Price: <span>240 Silver</span></div>
-        <button class="buy-btn" onclick="buy('crystals', 5, 240)">Purchase</button>
+        <div class="item-desc">Bulk crystal pack. Slight discount for dedicated collectors.</div>
+        <div class="item-farm-time">~ 4.6h of farming</div>
+        <div class="item-price">Price: <span>55 Silver</span></div>
+        <button class="buy-btn" onclick="buy('crystals', 5, 55)">Purchase</button>
       </div>
 
       <div class="market-item">
         <div class="item-icon">🔩</div>
         <div class="item-name">Fragments x5</div>
-        <div class="item-desc">Used to upgrade cards. Normally obtained from duplicates.</div>
-        <div class="item-price">Price: <span>15 Silver</span></div>
-        <button class="buy-btn" onclick="buy('fragments', 5, 15)">Purchase</button>
+        <div class="item-desc">Card upgrade material. Normally obtained from duplicates.</div>
+        <div class="item-farm-time">~ 20 min of farming</div>
+        <div class="item-price">Price: <span>4 Silver</span></div>
+        <button class="buy-btn" onclick="buy('fragments', 5, 4)">Purchase</button>
       </div>
 
     </div>
 
-    <!-- INDUSTRIAL TAB -->
+    <!-- INDUSTRIAL -->
     <div class="tab-content" id="tab-industrial">
 
-      <div class="market-item">
-        <div class="machine-tier">TIER I</div>
+      <div class="market-item" id="machine-card-1">
+        <div class="machine-tier" id="tier-badge-1">TIER I</div>
         <div class="item-icon">⚙️</div>
         <div class="item-name">Machine I</div>
-        <div class="item-desc">Basic Elixir generator. Requires constant Essence supply to operate.</div>
+        <div class="item-desc">Entry-level Elixir generator. Your first step into automation.</div>
         <div class="machine-stats">
-          <div class="stat">Output: <span>+10 Elixir/min</span></div>
-          <div class="stat">Fuel: <span class="cost">2 Essence/min</span></div>
+          <div class="stat">Output: <span>~17 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">0.2 Essence/min</span></div>
+          <div class="stat">Net: <span class="net">+800 Elixir/h</span></div>
         </div>
-        <div class="item-price">Price: <span>50 Silver</span></div>
-        <button class="buy-btn" onclick="buyMachine(1, 50)">Purchase</button>
+        <div class="item-farm-time">Purchase cost: ~1.25h of farming</div>
+        <div class="item-price" id="price-display-1">Price: <span>15 Silver</span></div>
+        <div id="machine-btn-1"></div>
       </div>
 
-      <div class="market-item">
-        <div class="machine-tier">TIER II</div>
+      <div class="market-item" id="machine-card-2">
+        <div class="machine-tier" id="tier-badge-2">TIER II</div>
         <div class="item-icon">🔧</div>
         <div class="item-name">Machine II</div>
-        <div class="item-desc">Advanced generator with significantly higher output.</div>
+        <div class="item-desc">Advanced generator. Upgrade from Machine I for better returns.</div>
         <div class="machine-stats">
-          <div class="stat">Output: <span>+50 Elixir/min</span></div>
-          <div class="stat">Fuel: <span class="cost">8 Essence/min</span></div>
+          <div class="stat">Output: <span>~20 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">0.5 Essence/min</span></div>
+          <div class="stat">Net: <span class="net">+900 Elixir/h</span></div>
         </div>
-        <div class="item-price">Price: <span>200 Silver</span></div>
-        <button class="buy-btn" onclick="buyMachine(2, 200)">Purchase</button>
+        <div class="item-farm-time">Upgrade cost: ~3.75h of farming</div>
+        <div class="item-price" id="price-display-2">Upgrade price: <span>45 Silver</span></div>
+        <div id="machine-btn-2"></div>
       </div>
 
-      <div class="market-item">
-        <div class="machine-tier">TIER III</div>
+      <div class="market-item" id="machine-card-3">
+        <div class="machine-tier" id="tier-badge-3">TIER III</div>
         <div class="item-icon">🏭</div>
         <div class="item-name">Machine III</div>
-        <div class="item-desc">Industrial-grade Elixir synthesis. Requires serious Essence investment.</div>
+        <div class="item-desc">Industrial synthesis. Requires Machine II to unlock.</div>
         <div class="machine-stats">
-          <div class="stat">Output: <span>+200 Elixir/min</span></div>
-          <div class="stat">Fuel: <span class="cost">30 Essence/min</span></div>
+          <div class="stat">Output: <span>~27 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">1 Essence/min</span></div>
+          <div class="stat">Net: <span class="net">+1000 Elixir/h</span></div>
         </div>
-        <div class="item-price">Price: <span>800 Silver</span></div>
-        <button class="buy-btn" onclick="buyMachine(3, 800)">Purchase</button>
+        <div class="item-farm-time">Upgrade cost: ~12.5h of farming</div>
+        <div class="item-price" id="price-display-3">Upgrade price: <span>150 Silver</span></div>
+        <div id="machine-btn-3"></div>
       </div>
 
-      <div class="market-item">
-        <div class="machine-tier">TIER IV</div>
+      <div class="market-item" id="machine-card-4">
+        <div class="machine-tier" id="tier-badge-4">TIER IV</div>
         <div class="item-icon">🚀</div>
         <div class="item-name">Machine IV</div>
-        <div class="item-desc">Maximum efficiency Elixir reactor. End-game automation.</div>
+        <div class="item-desc">Maximum efficiency reactor. End-game automation. Requires Machine III.</div>
         <div class="machine-stats">
-          <div class="stat">Output: <span>+800 Elixir/min</span></div>
-          <div class="stat">Fuel: <span class="cost">100 Essence/min</span></div>
+          <div class="stat">Output: <span>~36 Elixir/min</span></div>
+          <div class="stat">Fuel: <span class="cost">2 Essence/min</span></div>
+          <div class="stat">Net: <span class="net">+1200 Elixir/h</span></div>
         </div>
-        <div class="item-price">Price: <span>3,000 Silver</span></div>
-        <button class="buy-btn" onclick="buyMachine(4, 3000)">Purchase</button>
+        <div class="item-farm-time">Upgrade cost: ~41.7h of farming</div>
+        <div class="item-price" id="price-display-4">Upgrade price: <span>500 Silver</span></div>
+        <div id="machine-btn-4"></div>
       </div>
 
     </div>
@@ -457,23 +533,21 @@
       'sb_publishable_6rBnjr2X1LV9wGTNkVl6jQ_XxHENZ-l'
     )
 
-    let silver = 0
-    let essence = 0
-    let crystals = 0
-    let fragments = 0
-    let elixir = 0
+    // Machine tier = 0 means no machine, 1-4 = tier owned
+    // Player can only go up, never down
+    const MACHINES = {
+      1: { price: 15,  label: 'Purchase', isUpgrade: false },
+      2: { price: 45,  label: 'Upgrade',  isUpgrade: true  },
+      3: { price: 150, label: 'Upgrade',  isUpgrade: true  },
+      4: { price: 500, label: 'Upgrade',  isUpgrade: true  }
+    }
+
+    let silver = 0, essence = 0, crystals = 0, fragments = 0, elixir = 0
+    let machineTier = 0 // 0 = none, 1-4 = current tier
     let userId = null
     let saveTimeout = null
 
     function fmt(n) { return Math.floor(n).toLocaleString() }
-
-    function updateDisplay() {
-      document.getElementById("resElixir").textContent = fmt(elixir)
-      document.getElementById("resSilver").textContent = silver.toFixed(2)
-      document.getElementById("resEssence").textContent = fmt(essence)
-      document.getElementById("resCrystals").textContent = fmt(crystals)
-      document.getElementById("resFragments").textContent = fmt(fragments)
-    }
 
     function showToast(msg, type = '') {
       const t = document.getElementById("toast")
@@ -490,12 +564,82 @@
       document.getElementById(`tab-${tab}`).classList.add('active')
     }
 
+    function renderMachines() {
+      for (let tier = 1; tier <= 4; tier++) {
+        const card = document.getElementById(`machine-card-${tier}`)
+        const btn = document.getElementById(`machine-btn-${tier}`)
+        const badge = document.getElementById(`tier-badge-${tier}`)
+
+        card.classList.remove('locked', 'owned')
+        badge.classList.remove('active-tier')
+
+        if (tier < machineTier) {
+          // Already owned and upgraded past — show as owned/inactive
+          card.classList.add('owned')
+          badge.classList.add('active-tier')
+          btn.innerHTML = `<div class="owned-badge">✓ Upgraded</div>`
+        } else if (tier === machineTier) {
+          // Currently owned tier
+          card.classList.add('owned')
+          badge.classList.add('active-tier')
+          if (tier < 4) {
+            btn.innerHTML = `<button class="upgrade-btn" onclick="buyMachine(${tier + 1})">⬆ Upgrade to Tier ${tier + 1}</button>`
+          } else {
+            btn.innerHTML = `<div class="owned-badge">✓ Max Tier Reached</div>`
+          }
+        } else if (tier === machineTier + 1) {
+          // Next available tier
+          if (tier === 1) {
+            btn.innerHTML = `<button class="buy-btn" onclick="buyMachine(1)">Purchase</button>`
+          } else {
+            btn.innerHTML = `<button class="upgrade-btn" onclick="buyMachine(${tier})">⬆ Upgrade</button>`
+          }
+        } else {
+          // Locked — too far ahead
+          card.classList.add('locked')
+          btn.innerHTML = `<div class="owned-badge" style="color:var(--text-dim);border-color:var(--border)">🔒 Locked</div>`
+        }
+      }
+    }
+
+    function updateDisplay() {
+      document.getElementById("resElixir").textContent = fmt(elixir)
+      document.getElementById("resSilver").textContent = silver.toFixed(2)
+      document.getElementById("resEssence").textContent = fmt(essence)
+      document.getElementById("resCrystals").textContent = fmt(crystals)
+      document.getElementById("resFragments").textContent = fmt(fragments)
+      renderMachines()
+    }
+
     async function saveData() {
       if (!userId) return
       await sb.from("player_scores").update({
         silver, essence, crystals, fragments,
         updated_at: new Date()
       }).eq("user_id", userId)
+    }
+
+    async function saveMachine() {
+      if (!userId) return
+      const { data: existing } = await sb.from("player_machines")
+        .select("id").eq("user_id", userId).single()
+
+      if (!existing) {
+        await sb.from("player_machines").insert({
+          user_id: userId,
+          machine1: machineTier >= 1 ? 1 : 0,
+          machine2: machineTier >= 2 ? 1 : 0,
+          machine3: machineTier >= 3 ? 1 : 0,
+          machine4: machineTier >= 4 ? 1 : 0
+        })
+      } else {
+        await sb.from("player_machines").update({
+          machine1: machineTier >= 1 ? 1 : 0,
+          machine2: machineTier >= 2 ? 1 : 0,
+          machine3: machineTier >= 3 ? 1 : 0,
+          machine4: machineTier >= 4 ? 1 : 0
+        }).eq("user_id", userId)
+      }
     }
 
     function buy(resource, amount, cost) {
@@ -510,27 +654,18 @@
       saveTimeout = setTimeout(saveData, 3000)
     }
 
-    async function buyMachine(tier, cost) {
+    async function buyMachine(tier) {
+      // Can only buy the next tier
+      if (tier !== machineTier + 1) { showToast("Invalid upgrade path", "error"); return }
+      const cost = MACHINES[tier].price
       if (silver < cost) { showToast("Not enough Silver", "error"); return }
+
       silver -= cost
+      machineTier = tier
       updateDisplay()
-
-      // Insert or update machine
-      const { data: existing } = await sb.from("player_machines")
-        .select("*").eq("user_id", userId).single()
-
-      if (!existing) {
-        const row = { user_id: userId, machine1: 0, machine2: 0, machine3: 0, machine4: 0 }
-        row[`machine${tier}`] = 1
-        await sb.from("player_machines").insert(row)
-      } else {
-        await sb.from("player_machines").update({
-          [`machine${tier}`]: existing[`machine${tier}`] + 1
-        }).eq("user_id", userId)
-      }
-
+      await saveMachine()
       await saveData()
-      showToast(`Machine ${tier} purchased!`, "success")
+      showToast(`Machine ${tier} ${tier === 1 ? 'purchased' : 'upgraded'}!`, "success")
     }
 
     async function load() {
@@ -549,6 +684,18 @@
         crystals = data.crystals || 0
         fragments = data.fragments || 0
         document.getElementById("headerUsername").textContent = data.username || 'Player'
+      }
+
+      const { data: machineData } = await sb.from("player_machines")
+        .select("*").eq("user_id", userId).single()
+
+      if (machineData) {
+        // Determine current tier from highest owned
+        if (machineData.machine4) machineTier = 4
+        else if (machineData.machine3) machineTier = 3
+        else if (machineData.machine2) machineTier = 2
+        else if (machineData.machine1) machineTier = 1
+        else machineTier = 0
       }
 
       updateDisplay()
