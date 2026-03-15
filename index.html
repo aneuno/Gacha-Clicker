@@ -22,7 +22,7 @@
       <button type="submit" class="w-full p-3 bg-green-600 rounded font-bold hover:bg-green-700">Créer un compte</button>
     </form>
     <button id="toggle-btn" class="w-full mt-4 text-blue-400">Pas de compte ? Inscris-toi</button>
-    <p id="message" class="text-center mt-4 text-red-400 min-h-[1.5rem]"></p>
+    <p id="message" class="text-center mt-4 min-h-[1.5rem]"></p>
   </div>
 
   <script type="module">
@@ -50,7 +50,10 @@
       const email = document.getElementById('email').value
       const password = document.getElementById('password').value
       const { error } = await sb.auth.signInWithPassword({ email, password })
-      if (error) return message.textContent = error.message
+      if (error) {
+        message.style.color = '#f87171'
+        return message.textContent = error.message
+      }
       window.location.href = 'game.html'
     }
 
@@ -60,22 +63,14 @@
       const email = document.getElementById('signup-email').value
       const password = document.getElementById('signup-password').value
 
-      // 1. Crée le compte
       const { data, error } = await sb.auth.signUp({ email, password })
-      if (error) return message.textContent = error.message
+      if (error) {
+        message.style.color = '#f87171'
+        return message.textContent = error.message
+      }
 
-      // 2. Insère directement le pseudo dans player_scores
-      const userId = data.user.id
-      await sb.from("player_scores").insert({
-        user_id: userId,
-        username: pseudo,
-        clicks: 0,
-        total_clicks_ever: 0
-      })
-
-      message.style.color = '#4ade80'
-      message.textContent = "Compte créé ! Tu peux te connecter."
-      toggleBtn.click()
+      // Redirige avec le pseudo dans l'URL pour que game.html le récupère
+      window.location.href = `game.html?pseudo=${encodeURIComponent(pseudo)}`
     }
 
     sb.auth.getUser().then(({ data }) => {
